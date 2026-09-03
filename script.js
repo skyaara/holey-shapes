@@ -130,6 +130,37 @@ const SHADOW_STEPS = 12;
 const states = new Map();
 let packingContext = null;
 const packingCache = new Map();
+const SHOWCASE_MOTIONS = [
+  ['scatter', '4.2s', '-1.4s'],
+  ['magnet', '4.6s', '-3.2s'],
+  ['blinkwave', '3.7s', '-2.1s'],
+  ['orbit', '5.2s', '-.6s'],
+  ['hop', '3.5s', '-1.9s'],
+  ['scan', '4.3s', '-.8s'],
+  ['wobble', '4.8s', '-2.4s'],
+  ['pinch', '3.9s', '-1.1s'],
+  ['carousel', '5.6s', '-4.1s'],
+  ['heartbeat', '3.8s', '-2.2s'],
+  ['peek', '4.5s', '-3.5s'],
+  ['shuffle', '4.1s', '-1.7s'],
+  ['tumble', '4.7s', '-3.3s'],
+  ['ripple', '3.6s', '-1.2s'],
+  ['breathe', '5s', '-2.5s']
+];
+const showcaseObserver = isBrowser && typeof IntersectionObserver === 'function'
+  ? new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.target.classList.toggle('is-showcase-visible', entry.isIntersecting));
+    }, { rootMargin: '120px 0px', threshold: 0.05 })
+  : null;
+
+function applyShowcaseMotion(element, index) {
+  const [name, duration, delay] = SHOWCASE_MOTIONS[index % SHOWCASE_MOTIONS.length];
+  element.dataset.motion = name;
+  element.style.setProperty('--motion-duration', duration);
+  element.style.setProperty('--motion-delay', delay);
+  if (showcaseObserver) showcaseObserver.observe(element);
+  else element.classList.add('is-showcase-visible');
+}
 
 function getPackingContext() {
   if (packingContext) return packingContext;
@@ -142,7 +173,32 @@ function getPackingContext() {
 }
 
 const holeMarkup = ({ cx, cy, rx, ry, rotate }) =>
-  `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rotate ? ` transform="rotate(${rotate} ${cx} ${cy})"` : ''} fill="black"/>`;
+  `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rotate ? ` transform="rotate(${rotate} ${cx} ${cy})"` : ''}/>`;
+
+const showcaseHoleMarkup = (hole, index) => {
+  const angle = (index * 137.5 * Math.PI) / 180;
+  const scatterX = Math.round(Math.cos(angle) * 17);
+  const scatterY = Math.round(Math.sin(angle) * 17);
+  const inwardX = Math.round((210 - hole.cx) * .26);
+  const inwardY = Math.round((210 - hole.cy) * .26);
+  const outwardX = Math.round((hole.cx - 210) * .11);
+  const outwardY = Math.round((hole.cy - 210) * .11);
+  const turn = (index % 2 ? 1 : -1) * (14 + (index % 3) * 7);
+  const variables = [
+    `--hole-origin:${hole.cx}px ${hole.cy}px`,
+    `--scatter-x:${scatterX}px`,
+    `--scatter-y:${scatterY}px`,
+    `--scatter-back-x:${Math.round(scatterX * -.3)}px`,
+    `--scatter-back-y:${Math.round(scatterY * -.3)}px`,
+    `--in-x:${inwardX}px`,
+    `--in-y:${inwardY}px`,
+    `--out-x:${outwardX}px`,
+    `--out-y:${outwardY}px`,
+    `--turn:${turn}deg`,
+    `--turn-back:${turn * -1}deg`
+  ].join(';');
+  return `<g class="hole-motion" style="${variables}">${holeMarkup(hole)}</g>`;
+};
 
 function darkShadow(color, factor = 0.52) {
   const value = color.replace('#', '');
@@ -289,13 +345,15 @@ function packedHoleLayout(shape, count, seed) {
 function svgMarkup(shape, holes, className, maskSuffix, accessible = false) {
   const maskId = `mask-${shape.key}-${maskSuffix}`;
   const fill = className === 'shape-shadow' ? darkShadow(shape.color) : shape.color;
-  return `<svg class="shape-layer ${className}" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}>
-    <defs><mask id="${maskId}"><rect width="420" height="420" fill="white"/>${holes.map(holeMarkup).join('')}</mask></defs>
-    <path d="${shape.path}" fill="${fill}" mask="url(#${maskId})"/>
-  </svg>`;
+  return `<svg class="shape-layer ${className}" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}><defs><mask id="${maskId}"><rect width="420" height="420" fill="white"/>${holes.map(holeMarkup).join('')}</mask></defs><path d="${shape.path}" fill="${fill}" mask="url(#${maskId})"/></svg>`;
 }
 
-function extrusionFilterMarkup(shape, suffix, options = {}) {
+function compactNumber(value) {
+  const rounded = Math.round(value * 100) / 100;
+  return String(Object.is(rounded, -0) ? 0 : rounded);
+}
+
+function extrusionFilterMarkup(shape, filterId, options = {}) {
   const shadowX = options.shadowX ?? SHADOW_X;
   const shadowY = options.shadowY ?? SHADOW_Y;
   const shadowSteps = options.shadowSteps ?? SHADOW_STEPS;
@@ -303,29 +361,18 @@ function extrusionFilterMarkup(shape, suffix, options = {}) {
   const offsets = Array.from({ length: shadowSteps }, (_, index) => {
     const step = index + 1;
     const ratio = step / shadowSteps;
-    return `<feOffset in="shadow-color" dx="${(shadowX * ratio).toFixed(2)}" dy="${(shadowY * ratio).toFixed(2)}" result="shadow-${step}"/>`;
+    return `<feOffset in="s" dx="${compactNumber(shadowX * ratio)}" dy="${compactNumber(shadowY * ratio)}" result="s${step}"/>`;
   }).join('');
   const merge = Array.from({ length: shadowSteps }, (_, index) =>
-    `<feMergeNode in="shadow-${shadowSteps - index}"/>`
+    `<feMergeNode in="s${shadowSteps - index}"/>`
   ).join('');
-  return `<filter id="extrusion-${shape.key}-${suffix}" x="-20%" y="-20%" width="160%" height="160%" color-interpolation-filters="sRGB">
-    <feFlood flood-color="${shadowColor}" result="shadow-paint"/>
-    <feComposite in="shadow-paint" in2="SourceGraphic" operator="in" result="shadow-color"/>
-    ${offsets}
-    <feMerge>${merge}<feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>`;
+  return `<filter id="${filterId}" x="-20%" y="-20%" width="160%" height="160%" color-interpolation-filters="sRGB"><feFlood flood-color="${shadowColor}" result="p"/><feComposite in="p" in2="SourceGraphic" operator="in" result="s"/>${offsets}<feMerge>${merge}<feMergeNode in="SourceGraphic"/></feMerge></filter>`;
 }
 
 function objectMarkup(shape, holes, suffix, accessible = false) {
   const maskId = `mask-${shape.key}-${suffix}`;
   const filterId = `extrusion-${shape.key}-${suffix}`;
-  return `<svg class="shape-layer shape-object" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}>
-    <defs>
-      <mask id="${maskId}"><rect width="420" height="420" fill="white"/>${holes.map(holeMarkup).join('')}</mask>
-      ${extrusionFilterMarkup(shape, suffix)}
-    </defs>
-    <g filter="url(#${filterId})"><g class="shape-spin"><path d="${shape.path}" fill="${shape.color}" mask="url(#${maskId})"/></g></g>
-  </svg>`;
+  return `<svg class="shape-layer shape-object" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}><defs><mask id="${maskId}"><rect width="420" height="420" fill="white"/>${holes.map(showcaseHoleMarkup).join('')}</mask>${extrusionFilterMarkup(shape, filterId)}</defs><g filter="url(#${filterId})"><g class="shape-spin"><path d="${shape.path}" fill="${shape.color}" mask="url(#${maskId})"/></g></g></svg>`;
 }
 
 function renderShape(card, shape, state) {
@@ -337,12 +384,12 @@ function renderShape(card, shape, state) {
 
 function exportSvg(shape, holes, options = {}) {
   const maskHoles = holes.map(holeMarkup).join('');
-  const filter = extrusionFilterMarkup(shape, 'download', options).replaceAll(`extrusion-${shape.key}-download`, 'extrusion');
+  const filter = extrusionFilterMarkup(shape, 'e', options);
   const duration = Math.max(100, Math.min(10000, Number(options.duration) || 900));
   const animation = options.animated === false
     ? ''
     : `<style>.spin-group{transform-box:fill-box;transform-origin:center;will-change:transform}svg:hover .spin-group{animation:spin ${duration}ms cubic-bezier(.33,0,.2,1) both}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){svg:hover .spin-group{animation:none}}</style>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="holes"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#extrusion)"><g class="spin-group"><path d="${shape.path}" fill="${shape.color}" mask="url(#holes)"/></g></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#e)"><g class="spin-group"><path d="${shape.path}" fill="${shape.color}" mask="url(#h)"/></g></g></svg>`;
 }
 
 function normalizeColor(color, fallback) {
@@ -437,6 +484,7 @@ if (collection) shapes.forEach((shape, index) => {
       <button class="download" type="button">GET SVG <span>↓</span></button>
     </div>`;
   collection.append(card);
+  applyShowcaseMotion(card, index);
 
   const state = { count: Math.min(shape.initial, holeLimit), seed: 0, limit: holeLimit };
   states.set(shape.key, state);
@@ -493,6 +541,7 @@ if (presentApp) {
   function renderPresent() {
     const shape = activeShape();
     const holes = packedHoleLayout(shape, presentState.count, presentState.seed);
+    applyShowcaseMotion(art, presentState.index);
     art.innerHTML = objectMarkup(shape, holes, 'present', true);
     syncPresentControls();
   }

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Holey Shapes</title>
+  <desc id="desc">Three large rotated perforated shapes staggered across a black background.</desc>
+  <rect width="1200" height="630" fill="#050505"/>
+
+  <g transform="rotate(-8 205 315)">
+    <circle cx="231" cy="342" r="180" fill="#2d168e"/>
+    <circle cx="205" cy="315" r="180" fill="#6337ff"/>
+    <ellipse cx="139" cy="239" rx="37" ry="53" fill="#050505" transform="rotate(27 139 239)"/>
+    <ellipse cx="271" cy="228" rx="53" ry="35" fill="#050505" transform="rotate(13 271 228)"/>
+    <ellipse cx="309" cy="359" rx="36" ry="54" fill="#050505" transform="rotate(31 309 359)"/>
+    <ellipse cx="181" cy="414" rx="49" ry="33" fill="#050505" transform="rotate(-9 181 414)"/>
+  </g>
+
+  <g transform="rotate(7 610 380)">
+    <path d="M550 190H670V320H800V440H670V570H550V440H420V320H550Z" fill="#006b7f" transform="translate(21 24)"/>
+    <path d="M550 190H670V320H800V440H670V570H550V440H420V320H550Z" fill="#00dbff"/>
+    <ellipse cx="610" cy="254" rx="25" ry="38" fill="#050505"/>
+    <ellipse cx="736" cy="380" rx="38" ry="25" fill="#050505"/>
+    <ellipse cx="610" cy="380" rx="34" ry="34" fill="#050505"/>
+    <ellipse cx="484" cy="380" rx="38" ry="25" fill="#050505"/>
+    <ellipse cx="610" cy="506" rx="25" ry="38" fill="#050505"/>
+  </g>
+
+  <g transform="rotate(-7 970 210)">
+    <path d="M970 24 1135 118 1135 306 970 400 805 306 805 118Z" fill="#84003d" transform="translate(22 26)"/>
+    <path d="M970 24 1135 118 1135 306 970 400 805 306 805 118Z" fill="#ff0878"/>
+    <ellipse cx="907" cy="139" rx="31" ry="45" fill="#050505" transform="rotate(-20 907 139)"/>
+    <ellipse cx="1036" cy="142" rx="47" ry="30" fill="#050505" transform="rotate(17 1036 142)"/>
+    <ellipse cx="1064" cy="266" rx="30" ry="47" fill="#050505" transform="rotate(22 1064 266)"/>
+    <ellipse cx="928" cy="300" rx="44" ry="29" fill="#050505" transform="rotate(-13 928 300)"/>
+  </g>
+</svg>

@@ -4,22 +4,78 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f7f7f4" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content="Holey Shapes" />
+    <meta name="author" content="Aakash Reddy" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta
       name="description"
-      content="Play with colorful solid SVG shapes, cut clean holes, spin them, and download the result."
+      content="Create perforated SVG shapes, adjust their holes and colors, add a solid extrusion, then download the animated result."
     />
-    <title>Holey Shapes — solid SVG playground</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Holey Shapes" />
+    <meta property="og:title" content="Holey Shapes | Perforated SVG generator" />
+    <meta property="og:description" content="Create, spin, and download perforated SVG shapes with solid extrusion." />
+    <meta property="og:url" content="https://holey-shapes.aakashreddy.com/" />
+    <meta property="og:image" content="https://holey-shapes.aakashreddy.com/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Three large rotated perforated shapes staggered across a black background" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Holey Shapes | Perforated SVG generator" />
+    <meta name="twitter:description" content="Create, spin, and download perforated SVG shapes with solid extrusion." />
+    <meta name="twitter:image" content="https://holey-shapes.aakashreddy.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Three large rotated perforated shapes staggered across a black background" />
+    <title>Holey Shapes | Perforated SVG generator</title>
+    <link rel="canonical" href="https://holey-shapes.aakashreddy.com/" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Manrope:wght@500;700;800&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Holey Shapes",
+        "description": "Create and download animated perforated SVG shapes with configurable holes, colors, and solid extrusion.",
+        "url": "https://holey-shapes.aakashreddy.com/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "softwareVersion": "0.1.1",
+        "isAccessibleForFree": true,
+        "image": "https://holey-shapes.aakashreddy.com/og-image.png",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Aakash Reddy",
+          "url": "https://github.com/skyaara"
+        },
+        "sameAs": [
+          "https://www.npmjs.com/package/holey-shapes",
+          "https://github.com/skyaara/holey-shapes"
+        ]
+      }
+    </script>
   </head>
   <body>
     <header class="topbar">
       <a class="wordmark" href="#top" aria-label="Holey Shapes home">
-        HOLEY SHAPES
+        <img class="brand-mark" src="/logo.svg" alt="" width="30" height="30" />
+        <span class="brand-text">HOLEY SHAPES</span>
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <span class="package-install">
           <a class="npm-package-link" href="https://www.npmjs.com/package/holey-shapes" target="_blank" rel="noreferrer">
-            <span>NPM PACKAGE</span><strong>v0.1.0</strong><span>↗</span>
+            <span>NPM PACKAGE</span><strong>v0.1.1</strong><span>↗</span>
           </a>
           <button class="install-command" type="button" aria-label="Copy npm install command">
             <code>npm install holey-shapes</code>
@@ -34,12 +90,15 @@
     </header>
 
     <main id="top">
-      <h1 id="page-title" class="visually-hidden">Holey Shapes solid SVG playground</h1>
+      <h1 id="page-title" class="visually-hidden">Create and download perforated SVG shapes</h1>
       <section class="collection" id="collection" aria-label="Animated SVG collection"></section>
     </main>
 
     <footer>
-      <a class="footer-mark" href="#top">HOLEY SHAPES</a>
+      <a class="footer-mark" href="#top" aria-label="Holey Shapes home">
+        <img class="brand-mark" src="/logo.svg" alt="" width="24" height="24" />
+        <span>HOLEY SHAPES</span>
+      </a>
       <a href="#top">TOP ↑</a>
     </footer>
     <script type="module" src="/script.js"></script>

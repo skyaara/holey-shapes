@@ -18,6 +18,12 @@ assert.match(svg, /fill="#12ABEF"/);
 assert.match(svg, /flood-color="#06405A"/);
 assert.match(svg, /animation:spin 700ms/);
 assert.match(svg, /with 6 holes/);
+assert.doesNotMatch(svg, /[\r\n]/);
+assert.doesNotMatch(svg, /\d+\.\d*0"/);
+assert.doesNotMatch(svg, /fill="black"/);
+assert.match(svg, /result="s1"/);
+assert.match(svg, /<mask id="h">/);
+assert.match(svg, /<filter id="e"/);
 
 const stillSvg = createHoleySvg({ animated: false, holes: 0 });
 assert.doesNotMatch(stillSvg, /@keyframes/);

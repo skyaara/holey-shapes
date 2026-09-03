@@ -225,7 +225,8 @@
 @media (max-width: 520px) {
   .present-topbar nav > a { display: none; }
   .present-topbar .npm-package-link { display: none; }
-  .present-topbar .wordmark { max-width: 82px; font-size: 17px; line-height: .9; }
+  .present-topbar .wordmark { font-size: 17px; line-height: .9; }
+  .present-topbar .brand-text { display: none; }
   .present-topbar nav { padding: 5px 0; background: transparent; }
   .package-install--present .install-command { padding-inline: 11px; }
   .present-preview { min-height: 610px; }

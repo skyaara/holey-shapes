@@ -4,18 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f7f7f4" />
-    <meta name="description" content="Build and export animated perforated SVG shapes." />
-    <title>Holey Shapes — shape studio</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content="Holey Shapes" />
+    <meta name="author" content="Aakash Reddy" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="description" content="Design a perforated SVG with custom holes, colors, and extrusion, then download it with an embedded hover animation." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Holey Shapes" />
+    <meta property="og:title" content="Shape studio | Holey Shapes" />
+    <meta property="og:description" content="Design and download a custom animated perforated SVG." />
+    <meta property="og:url" content="https://holey-shapes.aakashreddy.com/present" />
+    <meta property="og:image" content="https://holey-shapes.aakashreddy.com/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Three large rotated perforated shapes staggered across a black background" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shape studio | Holey Shapes" />
+    <meta name="twitter:description" content="Design and download a custom animated perforated SVG." />
+    <meta name="twitter:image" content="https://holey-shapes.aakashreddy.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Three large rotated perforated shapes staggered across a black background" />
+    <title>Shape studio | Holey Shapes</title>
+    <link rel="canonical" href="https://holey-shapes.aakashreddy.com/present" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Manrope:wght@500;700;800&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/present.css" />
   </head>
   <body class="present-page">
     <header class="present-topbar">
-      <a class="wordmark" href="/">HOLEY SHAPES</a>
+      <a class="wordmark" href="/" aria-label="Holey Shapes home">
+        <img class="brand-mark" src="/logo.svg" alt="" width="30" height="30" />
+        <span class="brand-text">HOLEY SHAPES</span>
+      </a>
       <nav aria-label="Page controls">
         <span class="package-install package-install--present">
           <a class="npm-package-link" href="https://www.npmjs.com/package/holey-shapes" target="_blank" rel="noreferrer">
-            <span>NPM PACKAGE</span><strong>v0.1.0</strong><span>↗</span>
+            <span>NPM PACKAGE</span><strong>v0.1.1</strong><span>↗</span>
           </a>
           <button class="install-command" type="button" aria-label="Copy npm install command">
             <code>npm install holey-shapes</code>
@@ -30,6 +60,7 @@
     </header>
 
     <main class="present-shell" id="present-app">
+      <h1 class="visually-hidden">Holey Shapes custom SVG shape studio</h1>
       <section class="present-preview" aria-label="Selected shape preview">
         <div class="present-canvas">
           <div class="present-art" id="present-art"></div>

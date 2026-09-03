@@ -1,6 +1,6 @@
 {
   "name": "holey-shapes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Colorful perforated SVG shapes with solid extrusion and hover animation.",
   "type": "module",
   "license": "MIT",
@@ -19,6 +19,7 @@
   },
   "main": "./index.js",
   "types": "./index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -36,8 +37,13 @@
   ],
   "keywords": [
     "svg",
+    "svg-generator",
+    "svg-animation",
     "shapes",
     "animation",
+    "perforated",
+    "extrusion",
+    "creative-coding",
     "generative-art",
     "web"
   ],
@@ -51,7 +57,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node tests/package.test.mjs",
+    "test": "node tests/package.test.mjs && node tests/site.test.mjs",
     "prepublishOnly": "npm test && npm run build"
   },
   "devDependencies": {

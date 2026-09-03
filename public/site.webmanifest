@@ -1,0 +1,17 @@
+{
+  "name": "Holey Shapes",
+  "short_name": "Holey",
+  "description": "Create and download animated perforated SVG shapes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f4",
+  "theme_color": "#ff0878",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
