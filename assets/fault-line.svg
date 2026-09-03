@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Cut prism</title><desc id="desc">An orange solid faceted prism punched through with three voids.</desc>
+  <defs>
+    <path id="body" d="M210 34 370 164 309 358 111 358 50 164Z"/>
+    <path id="holes" d="M133 126c24-12 51 11 39 36-11 23-51 23-57-2-3-14 5-27 18-34Zm128 51c17-21 53-9 54 18 1 26-33 42-52 22-11-10-12-29-2-40Zm-90 100c23-18 55 2 50 31-5 27-45 33-60 9-8-14-4-31 10-40Z"/>
+    <mask id="fm"><rect width="420" height="420" fill="white"/><use href="#holes" fill="black"/></mask>
+    <mask id="bm"><rect width="420" height="420" fill="white"/><ellipse cx="144" cy="146" rx="20" ry="18" fill="black"/><ellipse cx="285" cy="198" rx="20" ry="19" fill="black"/><ellipse cx="188" cy="299" rx="21" ry="20" fill="black"/></mask>
+  </defs>
+  <g id="sculpture" transform="rotate(5 210 210)">
+    <use href="#body" fill="#FF6320" mask="url(#fm)"/>
+  </g>
+</svg>

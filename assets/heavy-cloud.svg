@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Cross block</title><desc id="desc">A black solid cross block punched through with five voids.</desc>
+  <defs>
+    <path id="body" d="M151 36h118v115h115v118H269v115H151V269H36V151h115Z"/>
+    <g id="holes"><ellipse cx="210" cy="98" rx="23" ry="32"/><ellipse cx="310" cy="210" rx="32" ry="23"/><ellipse cx="210" cy="312" rx="23" ry="32"/><ellipse cx="109" cy="210" rx="32" ry="23"/><circle cx="210" cy="210" r="35"/></g>
+    <mask id="fm"><rect width="420" height="420" fill="white"/><use href="#holes" fill="black"/></mask>
+    <mask id="bm"><rect width="420" height="420" fill="white"/><ellipse cx="210" cy="98" rx="16" ry="22" fill="black"/><ellipse cx="310" cy="210" rx="22" ry="16" fill="black"/><ellipse cx="210" cy="312" rx="16" ry="22" fill="black"/><ellipse cx="109" cy="210" rx="22" ry="16" fill="black"/><circle cx="210" cy="210" r="24" fill="black"/></mask>
+  </defs>
+  <g id="sculpture" transform="rotate(-5 210 210)">
+    <use href="#body" fill="#222226" mask="url(#fm)"/>
+  </g>
+</svg>

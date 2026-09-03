@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" data-holey-app>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f7f4" />
+    <meta name="description" content="Build and export animated perforated SVG shapes." />
+    <title>Holey! — shape studio</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/present.css" />
+  </head>
+  <body class="present-page">
+    <header class="present-topbar">
+      <a class="wordmark" href="/">HOLEY!</a>
+      <nav aria-label="Page controls">
+        <a href="/">GALLERY</a>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span aria-hidden="true">◐</span><span class="theme-label">DARK</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="present-shell" id="present-app">
+      <section class="present-preview" aria-label="Selected shape preview">
+        <div class="present-canvas">
+          <div class="present-art" id="present-art"></div>
+        </div>
+        <div class="present-caption">
+          <span id="selected-name">Perforated disc</span>
+          <button id="present-download" type="button">GET ANIMATED SVG ↓</button>
+        </div>
+      </section>
+
+      <aside class="present-panel" aria-label="Shape controls">
+        <section>
+          <div class="panel-heading"><h2>SHAPE</h2><span>15</span></div>
+          <div class="shape-picker" id="shape-picker"></div>
+        </section>
+
+        <section>
+          <div class="panel-heading"><h2>HOLES</h2><output id="present-count">05 / 08</output></div>
+          <input class="hole-range" id="present-holes" type="range" min="0" max="8" value="5" />
+          <button class="panel-action" id="present-shuffle" type="button">SHUFFLE ↻</button>
+        </section>
+
+        <section>
+          <div class="panel-heading"><h2>COLOR</h2></div>
+          <div class="color-picker" id="color-picker"></div>
+        </section>
+      </aside>
+    </main>
+
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>

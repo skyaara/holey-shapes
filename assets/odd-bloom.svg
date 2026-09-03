@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Hex slab</title><desc id="desc">A hot pink solid hexagonal slab punched through with five voids.</desc>
+  <defs>
+    <path id="body" d="M210 36 353 119 353 285 210 368 67 285 67 119Z"/>
+    <g id="holes"><ellipse cx="206" cy="103" rx="22" ry="31"/><ellipse cx="292" cy="174" rx="31" ry="21" transform="rotate(18 292 174)"/><ellipse cx="264" cy="280" rx="23" ry="33" transform="rotate(26 264 280)"/><ellipse cx="145" cy="277" rx="32" ry="22" transform="rotate(-18 145 277)"/><ellipse cx="122" cy="168" rx="23" ry="32" transform="rotate(14 122 168)"/></g>
+    <mask id="fm"><rect width="420" height="420" fill="white"/><use href="#holes" fill="black"/></mask>
+    <mask id="bm"><rect width="420" height="420" fill="white"/><ellipse cx="206" cy="103" rx="15" ry="21" fill="black"/><ellipse cx="292" cy="174" rx="21" ry="14" transform="rotate(18 292 174)" fill="black"/><ellipse cx="264" cy="280" rx="16" ry="23" transform="rotate(26 264 280)" fill="black"/><ellipse cx="145" cy="277" rx="22" ry="15" transform="rotate(-18 145 277)" fill="black"/><ellipse cx="122" cy="168" rx="16" ry="22" transform="rotate(14 122 168)" fill="black"/></mask>
+  </defs>
+  <g id="sculpture" transform="rotate(5 210 210)">
+    <use href="#body" fill="#EB116B" mask="url(#fm)"/>
+  </g>
+</svg>

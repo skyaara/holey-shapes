@@ -1,0 +1,60 @@
+{
+  "name": "holey-shapes",
+  "version": "0.1.0",
+  "description": "Colorful perforated SVG shapes with solid extrusion and hover animation.",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Aakash Reddy",
+    "email": "kondampallyaakash@gmail.com",
+    "url": "https://github.com/skyaara"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyaara/holey-shapes.git"
+  },
+  "homepage": "https://github.com/skyaara/holey-shapes#readme",
+  "bugs": {
+    "url": "https://github.com/skyaara/holey-shapes/issues"
+  },
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "script.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "svg",
+    "shapes",
+    "animation",
+    "generative-art",
+    "web"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node tests/package.test.mjs",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "devDependencies": {
+    "vite": "^7.1.3"
+  }
+}

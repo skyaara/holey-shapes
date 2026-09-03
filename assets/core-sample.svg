@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Round block</title><desc id="desc">An acid green solid rounded block punched through with three voids.</desc>
+  <defs>
+    <rect id="body" x="55" y="54" width="310" height="310" rx="66"/>
+    <g id="holes"><ellipse cx="151" cy="140" rx="41" ry="29" transform="rotate(-17 151 140)"/><ellipse cx="273" cy="191" rx="29" ry="44" transform="rotate(19 273 191)"/><circle cx="168" cy="278" r="37"/></g>
+    <mask id="fm"><rect width="420" height="420" fill="white"/><use href="#holes" fill="black"/></mask>
+    <mask id="bm"><rect width="420" height="420" fill="white"/><ellipse cx="151" cy="140" rx="29" ry="20" transform="rotate(-17 151 140)" fill="black"/><ellipse cx="273" cy="191" rx="20" ry="31" transform="rotate(19 273 191)" fill="black"/><circle cx="168" cy="278" r="26" fill="black"/></mask>
+  </defs>
+  <g id="sculpture" transform="rotate(-5 210 210)">
+    <use href="#body" fill="#91DE0C" mask="url(#fm)"/>
+  </g>
+</svg>

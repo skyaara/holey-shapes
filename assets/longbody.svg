@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-labelledby="title desc">
+  <title id="title">Capsule</title><desc id="desc">A cobalt solid capsule punched through with four voids.</desc>
+  <defs>
+    <rect id="body" x="34" y="112" width="352" height="190" rx="95"/>
+    <g id="holes"><ellipse cx="105" cy="212" rx="27" ry="40"/><ellipse cx="183" cy="170" rx="36" ry="25" transform="rotate(-12 183 170)"/><ellipse cx="263" cy="224" rx="27" ry="40" transform="rotate(10 263 224)"/><ellipse cx="334" cy="174" rx="29" ry="23"/></g>
+    <mask id="fm"><rect width="420" height="420" fill="white"/><use href="#holes" fill="black"/></mask>
+    <mask id="bm"><rect width="420" height="420" fill="white"/><ellipse cx="105" cy="212" rx="18" ry="28" fill="black"/><ellipse cx="183" cy="170" rx="25" ry="17" transform="rotate(-12 183 170)" fill="black"/><ellipse cx="263" cy="224" rx="18" ry="28" transform="rotate(10 263 224)" fill="black"/><ellipse cx="334" cy="174" rx="20" ry="16" fill="black"/></mask>
+  </defs>
+  <g id="sculpture" transform="rotate(-6 210 210)">
+    <use href="#body" fill="#255EE6" mask="url(#fm)"/>
+  </g>
+</svg>

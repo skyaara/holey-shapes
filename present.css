@@ -1,0 +1,217 @@
+.present-page {
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+.present-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  height: 76px;
+  padding: 0 clamp(22px, 3vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.present-topbar > * { pointer-events: auto; }
+
+.present-topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 11px 14px;
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.present-topbar nav > a {
+  color: var(--muted);
+  font: 500 10px/1 "DM Mono", monospace;
+  letter-spacing: .09em;
+  text-underline-offset: 4px;
+}
+
+.present-shell {
+  height: 100svh;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(340px, 31vw, 470px);
+  overflow: hidden;
+}
+
+.present-preview {
+  min-width: 0;
+  padding: 92px clamp(28px, 5vw, 80px) 30px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.present-canvas {
+  width: min(66vh, 56vw, 680px);
+  aspect-ratio: 1;
+  margin: auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+  perspective: 1000px;
+}
+
+.present-art {
+  position: relative;
+  width: 82%;
+  aspect-ratio: 1;
+  cursor: grab;
+}
+
+.present-canvas:hover .shape-spin,
+.present-canvas:focus-within .shape-spin {
+  animation: object-spin .9s cubic-bezier(.33, 0, .2, 1) both;
+}
+
+.present-caption {
+  width: min(600px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  font: 500 10px/1 "DM Mono", monospace;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.present-caption button,
+.panel-action {
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--paper);
+  background: var(--ink);
+  font: 500 9px/1 "DM Mono", monospace;
+  letter-spacing: .07em;
+  cursor: pointer;
+}
+
+.present-panel {
+  height: 100svh;
+  padding: 90px clamp(20px, 2.5vw, 38px) 42px;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--ink) 3%, var(--paper));
+}
+
+.present-panel section + section { margin-top: 46px; }
+
+.panel-heading {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font: 500 9px/1 "DM Mono", monospace;
+  letter-spacing: .09em;
+}
+
+.panel-heading h2 { margin: 0; color: var(--ink); font: inherit; }
+
+.shape-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.shape-option {
+  min-width: 0;
+  padding: 10px 7px 8px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.shape-option:hover { transform: translateY(-2px); }
+
+.shape-option.is-active {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.shape-thumb {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1.18;
+}
+
+.shape-thumb .shape-layer {
+  position: static;
+  width: 76%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.shape-option > span:last-child {
+  display: block;
+  margin-top: 4px;
+  font: 500 8px/1 "DM Mono", monospace;
+  letter-spacing: .06em;
+}
+
+.present-panel .hole-range {
+  display: block;
+  width: 100%;
+}
+
+.panel-action {
+  margin-top: 14px;
+  padding: 9px 0;
+  border-radius: 0;
+  color: var(--ink);
+  background: transparent;
+}
+
+.panel-action:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.color-picker {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 9px;
+}
+
+.color-option {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--swatch);
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.color-option:hover { transform: scale(1.1); }
+.color-option.is-active { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); }
+
+@media (max-width: 820px) {
+  .present-page { overflow: auto; }
+  .present-topbar { position: absolute; }
+  .present-shell { height: auto; min-height: 100svh; display: block; overflow: visible; }
+  .present-preview { min-height: 720px; padding: 92px 22px 36px; }
+  .present-canvas { width: min(88vw, 560px); }
+  .present-panel { height: auto; overflow: visible; padding: 48px 22px 80px; }
+  .shape-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .present-topbar nav > a { display: none; }
+  .present-preview { min-height: 610px; }
+  .present-caption { align-items: flex-start; flex-direction: column; }
+  .shape-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .color-picker { grid-template-columns: repeat(6, 1fr); }
+}

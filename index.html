@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-holey-app>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f7f4" />
+    <meta
+      name="description"
+      content="Play with colorful solid SVG shapes, cut clean holes, spin them, and download the result."
+    />
+    <title>Holey! — solid SVG playground</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="wordmark" href="#top" aria-label="Holey home">
+        HOLEY!
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <span class="status">15 SVG SHAPES</span>
+        <a href="/present">PRESENT →</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <span aria-hidden="true">◐</span><span class="theme-label">DARK</span>
+      </button>
+    </header>
+
+    <main id="top">
+      <h1 id="page-title" class="visually-hidden">Holey solid SVG playground</h1>
+      <section class="collection" id="collection" aria-label="Animated SVG collection"></section>
+    </main>
+
+    <footer>
+      <a class="footer-mark" href="#top">HOLEY!</a>
+      <a href="#top">TOP ↑</a>
+    </footer>
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>
