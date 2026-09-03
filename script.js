@@ -32,7 +32,7 @@ if (installButton) {
   installButton.addEventListener('click', async () => {
     const label = installButton.querySelector('.install-copy-label');
     try {
-      await navigator.clipboard.writeText('npm i holey-shapes');
+      await navigator.clipboard.writeText('npm install holey-shapes');
       if (label) label.textContent = 'COPIED';
       window.setTimeout(() => {
         if (label) label.textContent = 'COPY';

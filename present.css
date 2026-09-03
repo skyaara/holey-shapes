@@ -22,8 +22,8 @@
 .present-topbar nav {
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 11px 14px;
+  gap: 22px;
+  padding: 8px 10px;
   border-radius: 999px;
   background: var(--paper);
 }
@@ -33,6 +33,18 @@
   font: 500 10px/1 "DM Mono", monospace;
   letter-spacing: .09em;
   text-underline-offset: 4px;
+}
+
+.package-install--present { gap: 10px; }
+
+.package-install--present .npm-package-link {
+  font: 500 9px/1 "DM Mono", monospace;
+  letter-spacing: .07em;
+}
+
+.package-install--present .install-command {
+  font: 500 9px/1 "DM Mono", monospace;
+  letter-spacing: .05em;
 }
 
 .present-shell {
@@ -206,10 +218,16 @@
   .present-canvas { width: min(88vw, 560px); }
   .present-panel { height: auto; overflow: visible; padding: 48px 22px 80px; }
   .shape-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .present-topbar nav { gap: 12px; }
+  .package-install--present .npm-package-link > span:first-child { display: none; }
 }
 
 @media (max-width: 520px) {
   .present-topbar nav > a { display: none; }
+  .present-topbar .npm-package-link { display: none; }
+  .present-topbar .wordmark { max-width: 82px; font-size: 17px; line-height: .9; }
+  .present-topbar nav { padding: 5px 0; background: transparent; }
+  .package-install--present .install-command { padding-inline: 11px; }
   .present-preview { min-height: 610px; }
   .present-caption { align-items: flex-start; flex-direction: column; }
   .shape-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }

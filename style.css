@@ -57,7 +57,7 @@ button, input { font: inherit; }
 .wordmark {
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -.05em;
+  letter-spacing: -.055em;
   text-decoration: none;
 }
 
@@ -84,16 +84,31 @@ button, input { font: inherit; }
   gap: 12px;
 }
 
-.npm-package-link { color: var(--muted); }
+.npm-package-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.npm-package-link strong {
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: var(--paper);
+  background: var(--ink);
+  font: inherit;
+}
 
 .install-command {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 7px 0;
+  padding: 10px 14px;
   border: 0;
-  color: var(--ink);
-  background: transparent;
+  border-radius: 999px;
+  color: var(--paper);
+  background: var(--ink);
   font: inherit;
   letter-spacing: inherit;
   cursor: copy;
@@ -102,11 +117,11 @@ button, input { font: inherit; }
 .install-command code { font: inherit; }
 
 .install-copy-label {
-  color: var(--muted);
-  transition: color .16s ease;
+  color: color-mix(in srgb, var(--paper) 64%, transparent);
+  transition: opacity .16s ease;
 }
 
-.install-command:hover .install-copy-label { color: var(--ink); }
+.install-command:hover .install-copy-label { opacity: .58; }
 
 .theme-toggle {
   display: inline-flex;
@@ -324,7 +339,7 @@ footer {
 .footer-mark {
   color: var(--ink);
   font: 800 16px/1 "Manrope", sans-serif;
-  letter-spacing: -.05em;
+  letter-spacing: -.055em;
   text-decoration: none;
 }
 
