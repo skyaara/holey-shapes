@@ -78,6 +78,36 @@ button, input { font: inherit; }
 
 .main-nav a { text-underline-offset: 4px; }
 
+.package-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.npm-package-link { color: var(--muted); }
+
+.install-command {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: copy;
+}
+
+.install-command code { font: inherit; }
+
+.install-copy-label {
+  color: var(--muted);
+  transition: color .16s ease;
+}
+
+.install-command:hover .install-copy-label { color: var(--ink); }
+
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -311,8 +341,16 @@ footer > a:last-child { text-underline-offset: 4px; }
 }
 
 @media (max-width: 660px) {
-  .topbar { min-height: 70px; }
-  .status { display: none; }
+  .topbar {
+    min-height: 96px;
+    grid-template-columns: 1fr auto;
+    gap: 0 18px;
+  }
+  .main-nav {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+  .install-copy-label { display: none; }
   main { padding-inline: 18px; }
   .collection { grid-template-columns: 1fr; gap: 62px; }
   .stage, .form-card:not(.form-card--wide) .stage { height: min(92vw, 410px); }

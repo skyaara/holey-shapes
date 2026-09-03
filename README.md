@@ -2,7 +2,7 @@
 
 Solid, perforated SVG shapes with a connected extrusion and a built-in hover spin. Pick from 15 shapes, set the face and shadow colors, and control the hole layout. No framework or stylesheet required.
 
-[npm package](https://www.npmjs.com/package/holey-shapes) · [source](https://github.com/skyaara/holey-shapes)
+[live playground](https://holey.aakashreddy.com) · [npm package](https://www.npmjs.com/package/holey-shapes) · [source](https://github.com/skyaara/holey-shapes)
 
 ## Install
 

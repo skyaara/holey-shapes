@@ -26,6 +26,24 @@ if (themeToggle) {
   });
 }
 
+const installButton = isHoleyApp ? document.querySelector('.install-command') : null;
+
+if (installButton) {
+  installButton.addEventListener('click', async () => {
+    const label = installButton.querySelector('.install-copy-label');
+    try {
+      await navigator.clipboard.writeText('npm i holey-shapes');
+      if (label) label.textContent = 'COPIED';
+      window.setTimeout(() => {
+        if (label) label.textContent = 'COPY';
+      }, 1400);
+    } catch {
+      if (label) label.textContent = 'SELECT';
+      window.getSelection()?.selectAllChildren(installButton.querySelector('code'));
+    }
+  });
+}
+
 export const shapes = [
   {
     key: 'disc', name: 'Perforated disc', color: '#6337FF', bg: '#D7CEFF', initial: 5,
