@@ -1,14 +1,48 @@
 # holey-shapes
 
-Solid, perforated SVG shapes with a connected extrusion and a built-in hover spin. Pick from 15 shapes, set the face and shadow colors, and control the hole layout. No framework or stylesheet required.
+Solid, perforated shapes for the web and SwiftUI, with a connected extrusion and a built-in hover spin. Pick from 15 shapes, set the face and shadow colors, and control the hole layout.
 
 [live playground](https://holey-shapes.aakashreddy.com) · [npm package](https://www.npmjs.com/package/holey-shapes) · [source](https://github.com/skyaara/holey-shapes)
 
 ## Install
 
+### JavaScript
+
 ```sh
 npm install holey-shapes
 ```
+
+### Swift Package Manager
+
+In Xcode, add `https://github.com/skyaara/holey-shapes` as a package dependency, or add it to `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.2")
+]
+```
+
+Then render any catalog shape directly in SwiftUI:
+
+```swift
+import HoleyShapes
+import SwiftUI
+
+struct Logo: View {
+    var body: some View {
+        HoleyShapeView(
+            .flower,
+            faceColor: HoleyColor(hex: "#FF4FA3"),
+            shadowColor: HoleyColor(hex: "#7A1748"),
+            holes: 6,
+            seed: 2
+        )
+        .frame(width: 240, height: 240)
+    }
+}
+```
+
+The Swift SDK supports iOS 16+, macOS 13+, tvOS 16+, and visionOS 1+. It uses asynchronous SwiftUI `Canvas` rendering and caches the immutable shape paths, packing candidates, and finished hole layouts. The pointer hover animation follows Reduce Motion automatically.
 
 ## Render an SVG string
 
