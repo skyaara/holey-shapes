@@ -1,6 +1,9 @@
 node_modules/
 dist/
 .build/
+.gradle/
+build/
+local.properties
 *.tgz
 .DS_Store
 npm-debug.log*

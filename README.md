@@ -18,7 +18,7 @@ In Xcode, add `https://github.com/skyaara/holey-shapes` as a package dependency,
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.2")
+    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.3")
 ]
 ```
 
@@ -43,6 +43,43 @@ struct Logo: View {
 ```
 
 The Swift SDK supports iOS 16+, macOS 13+, tvOS 16+, and visionOS 1+. It uses asynchronous SwiftUI `Canvas` rendering and caches the immutable shape paths, packing candidates, and finished hole layouts. The pointer hover animation follows Reduce Motion automatically.
+
+### Android
+
+Add JitPack to dependency resolution in `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+
+Then add the Compose SDK:
+
+```kotlin
+dependencies {
+    implementation("com.github.skyaara:holey-shapes:v0.1.3")
+}
+```
+
+Use the composable directly or derive a stable shape from an ID:
+
+```kotlin
+import com.aakashreddy.holeyshapes.HoleyShapeConfig
+import com.aakashreddy.holeyshapes.HoleyShapeView
+
+HoleyShapeView(
+    config = HoleyShapeConfig.seeded(user.id),
+    modifier = Modifier.size(64.dp),
+    contentDescription = null,
+)
+```
+
+The Android SDK requires API 26 or newer and a consuming project compiled with API 35 or newer. It renders through the native Android canvas, caches geometry and packed layouts, and spins once when the shape or seed changes. Android's animation scale applies automatically.
 
 ## Render an SVG string
 
