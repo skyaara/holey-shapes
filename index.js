@@ -1,1 +1,1 @@
-export { createHoleySvg, mountHoleyShape, shapeNames, shapes } from './script.js';
+export { createHoleySvg, mountHoleyShape, seededHoleyOptions, shapeNames, shapes } from './script.js';

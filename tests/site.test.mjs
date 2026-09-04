@@ -36,11 +36,7 @@ assert.doesNotMatch(socialImage, /<text\b/);
 assert.equal(socialImage.match(/<g\b/g)?.length, 3);
 
 const script = await readFile(new URL('../script.js', import.meta.url), 'utf8');
-const motionBlock = script.match(/const SHOWCASE_MOTIONS = \[([\s\S]*?)\n\];/)?.[1];
-assert.ok(motionBlock, 'Showcase motion list must exist');
-const motionNames = [...motionBlock.matchAll(/\['([^']+)'/g)].map((match) => match[1]);
-assert.equal(motionNames.length, 15, 'Every shape must have an idle motion');
-assert.equal(new Set(motionNames).size, 15, 'Idle motions must not repeat');
-assert.deepEqual(motionNames.slice(0, 3), ['scatter', 'magnet', 'blinkwave']);
+assert.match(script, /hole-open-close/);
+assert.doesNotMatch(script, /shape-spin|object-spin/);
 
 console.log('site metadata smoke test passed');

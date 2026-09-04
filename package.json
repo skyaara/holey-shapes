@@ -1,7 +1,7 @@
 {
   "name": "holey-shapes",
-  "version": "0.1.2",
-  "description": "Colorful perforated SVG shapes with solid extrusion and hover animation.",
+  "version": "0.1.4",
+  "description": "Colorful perforated SVG shapes with solid extrusion and animated holes.",
   "type": "module",
   "license": "MIT",
   "author": {

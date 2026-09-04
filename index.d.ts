@@ -43,5 +43,6 @@ export interface HoleyMount {
 
 export const shapeNames: readonly HoleyShapeInfo[];
 export const shapes: readonly Record<string, unknown>[];
+export function seededHoleyOptions(identity: string, animated?: boolean): HoleyOptions;
 export function createHoleySvg(options?: HoleyOptions): string;
 export function mountHoleyShape(target: string | Element, options?: HoleyOptions): HoleyMount;

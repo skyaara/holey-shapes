@@ -130,38 +130,6 @@ const SHADOW_STEPS = 12;
 const states = new Map();
 let packingContext = null;
 const packingCache = new Map();
-const SHOWCASE_MOTIONS = [
-  ['scatter', '4.2s', '-1.4s'],
-  ['magnet', '4.6s', '-3.2s'],
-  ['blinkwave', '3.7s', '-2.1s'],
-  ['orbit', '5.2s', '-.6s'],
-  ['hop', '3.5s', '-1.9s'],
-  ['scan', '4.3s', '-.8s'],
-  ['wobble', '4.8s', '-2.4s'],
-  ['pinch', '3.9s', '-1.1s'],
-  ['carousel', '5.6s', '-4.1s'],
-  ['heartbeat', '3.8s', '-2.2s'],
-  ['peek', '4.5s', '-3.5s'],
-  ['shuffle', '4.1s', '-1.7s'],
-  ['tumble', '4.7s', '-3.3s'],
-  ['ripple', '3.6s', '-1.2s'],
-  ['breathe', '5s', '-2.5s']
-];
-const showcaseObserver = isBrowser && typeof IntersectionObserver === 'function'
-  ? new IntersectionObserver((entries) => {
-      entries.forEach((entry) => entry.target.classList.toggle('is-showcase-visible', entry.isIntersecting));
-    }, { rootMargin: '120px 0px', threshold: 0.05 })
-  : null;
-
-function applyShowcaseMotion(element, index) {
-  const [name, duration, delay] = SHOWCASE_MOTIONS[index % SHOWCASE_MOTIONS.length];
-  element.dataset.motion = name;
-  element.style.setProperty('--motion-duration', duration);
-  element.style.setProperty('--motion-delay', delay);
-  if (showcaseObserver) showcaseObserver.observe(element);
-  else element.classList.add('is-showcase-visible');
-}
-
 function getPackingContext() {
   if (packingContext) return packingContext;
   if (!isBrowser || typeof Path2D === 'undefined') return null;
@@ -175,30 +143,13 @@ function getPackingContext() {
 const holeMarkup = ({ cx, cy, rx, ry, rotate }) =>
   `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rotate ? ` transform="rotate(${rotate} ${cx} ${cy})"` : ''}/>`;
 
-const showcaseHoleMarkup = (hole, index) => {
-  const angle = (index * 137.5 * Math.PI) / 180;
-  const scatterX = Math.round(Math.cos(angle) * 17);
-  const scatterY = Math.round(Math.sin(angle) * 17);
-  const inwardX = Math.round((210 - hole.cx) * .26);
-  const inwardY = Math.round((210 - hole.cy) * .26);
-  const outwardX = Math.round((hole.cx - 210) * .11);
-  const outwardY = Math.round((hole.cy - 210) * .11);
-  const turn = (index % 2 ? 1 : -1) * (14 + (index % 3) * 7);
-  const variables = [
-    `--hole-origin:${hole.cx}px ${hole.cy}px`,
-    `--scatter-x:${scatterX}px`,
-    `--scatter-y:${scatterY}px`,
-    `--scatter-back-x:${Math.round(scatterX * -.3)}px`,
-    `--scatter-back-y:${Math.round(scatterY * -.3)}px`,
-    `--in-x:${inwardX}px`,
-    `--in-y:${inwardY}px`,
-    `--out-x:${outwardX}px`,
-    `--out-y:${outwardY}px`,
-    `--turn:${turn}deg`,
-    `--turn-back:${turn * -1}deg`
-  ].join(';');
-  return `<g class="hole-motion" style="${variables}">${holeMarkup(hole)}</g>`;
-};
+function hoverHoleMarkup(hole, index, seed = 0, duration = 900) {
+  const durationNoise = seededNoise(index + 1, 17, seed);
+  const delayNoise = seededNoise(index + 1, 43, seed);
+  const pulseDuration = Math.round(duration * (0.42 + durationNoise * 0.16));
+  const delay = Math.round(duration * (0.04 + delayNoise * 0.34));
+  return `<g class="hole-hover" style="--hole-duration:${pulseDuration}ms;--hole-delay:${delay}ms">${holeMarkup(hole)}</g>`;
+}
 
 function darkShadow(color, factor = 0.52) {
   const value = color.replace('#', '');
@@ -369,27 +320,33 @@ function extrusionFilterMarkup(shape, filterId, options = {}) {
   return `<filter id="${filterId}" x="-20%" y="-20%" width="160%" height="160%" color-interpolation-filters="sRGB"><feFlood flood-color="${shadowColor}" result="p"/><feComposite in="p" in2="SourceGraphic" operator="in" result="s"/>${offsets}<feMerge>${merge}<feMergeNode in="SourceGraphic"/></feMerge></filter>`;
 }
 
-function objectMarkup(shape, holes, suffix, accessible = false) {
+function objectMarkup(shape, holes, suffix, accessible = false, options = {}) {
   const maskId = `mask-${shape.key}-${suffix}`;
   const filterId = `extrusion-${shape.key}-${suffix}`;
-  return `<svg class="shape-layer shape-object" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}><defs><mask id="${maskId}"><rect width="420" height="420" fill="white"/>${holes.map(showcaseHoleMarkup).join('')}</mask>${extrusionFilterMarkup(shape, filterId)}</defs><g filter="url(#${filterId})"><g class="shape-spin"><path d="${shape.path}" fill="${shape.color}" mask="url(#${maskId})"/></g></g></svg>`;
+  const seed = options.seed ?? 0;
+  const duration = options.duration ?? 900;
+  const maskHoles = holes.map((hole, index) => hoverHoleMarkup(hole, index, seed, duration)).join('');
+  return `<svg class="shape-layer shape-object" viewBox="0 0 420 420" ${accessible ? `role="img" aria-label="${shape.name} with ${holes.length} holes"` : 'aria-hidden="true"'}><defs><mask id="${maskId}"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${extrusionFilterMarkup(shape, filterId)}</defs><g filter="url(#${filterId})"><path d="${shape.path}" fill="${shape.color}" mask="url(#${maskId})"/></g></svg>`;
 }
 
 function renderShape(card, shape, state) {
   const holes = packedHoleLayout(shape, state.count, state.seed);
-  card.querySelector('.shape-art').innerHTML = objectMarkup(shape, holes, 'card', true);
+  card.querySelector('.shape-art').innerHTML = objectMarkup(shape, holes, 'card', true, { seed: state.seed });
   card.querySelector('.hole-count').textContent = `${String(state.count).padStart(2, '0')} / ${String(state.limit).padStart(2, '0')}`;
   card.querySelector('.hole-range').value = state.count;
 }
 
 function exportSvg(shape, holes, options = {}) {
-  const maskHoles = holes.map(holeMarkup).join('');
   const filter = extrusionFilterMarkup(shape, 'e', options);
   const duration = Math.max(100, Math.min(10000, Number(options.duration) || 900));
+  const seed = Math.trunc(Number(options.seed) || 0);
+  const maskHoles = options.animated === false
+    ? holes.map(holeMarkup).join('')
+    : holes.map((hole, index) => hoverHoleMarkup(hole, index, seed, duration)).join('');
   const animation = options.animated === false
     ? ''
-    : `<style>.spin-group{transform-box:fill-box;transform-origin:center;will-change:transform}svg:hover .spin-group{animation:spin ${duration}ms cubic-bezier(.33,0,.2,1) both}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){svg:hover .spin-group{animation:none}}</style>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#e)"><g class="spin-group"><path d="${shape.path}" fill="${shape.color}" mask="url(#h)"/></g></g></svg>`;
+    : `<style>.hole-hover{transform-box:fill-box;transform-origin:center;will-change:transform}svg:hover .hole-hover{animation:hole-open-close var(--hole-duration) cubic-bezier(.33,0,.2,1) var(--hole-delay) both}@keyframes hole-open-close{0%,100%{transform:scale(1)}50%{transform:scale(.06)}}@media(prefers-reduced-motion:reduce){svg:hover .hole-hover{animation:none}}</style>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#e)"><path d="${shape.path}" fill="${shape.color}" mask="url(#h)"/></g></svg>`;
 }
 
 function normalizeColor(color, fallback) {
@@ -402,6 +359,25 @@ function numberInRange(value, fallback, min, max) {
 }
 
 export const shapeNames = Object.freeze(shapes.map(({ key, name, color }) => ({ key, name, color })));
+
+export function seededHoleyOptions(identity, animated = true) {
+  const bytes = new TextEncoder().encode(String(identity));
+  let hash = 14695981039346656037n;
+  for (const byte of bytes) {
+    hash = BigInt.asUintN(64, (hash ^ BigInt(byte)) * 1099511628211n);
+  }
+  let state = hash;
+  const next = () => {
+    state = BigInt.asUintN(64, state + 0x9E3779B97F4A7C15n);
+    let value = state;
+    value = BigInt.asUintN(64, (value ^ (value >> 30n)) * 0xBF58476D1CE4E5B9n);
+    value = BigInt.asUintN(64, (value ^ (value >> 27n)) * 0x94D049BB133111EBn);
+    return BigInt.asUintN(64, value ^ (value >> 31n));
+  };
+  const shape = shapes[Number(next() % BigInt(shapes.length))];
+  const seed = Number(next() % 1000001n);
+  return { shape: shape.key, seed, animated };
+}
 
 export function createHoleySvg(options = {}) {
   const source = shapes.find(({ key }) => key === options.shape) || shapes[0];
@@ -417,6 +393,7 @@ export function createHoleySvg(options = {}) {
   return exportSvg(shape, holes, {
     animated: options.animated,
     duration: options.duration,
+    seed,
     shadowColor,
     shadowX,
     shadowY,
@@ -484,8 +461,6 @@ if (collection) shapes.forEach((shape, index) => {
       <button class="download" type="button">GET SVG <span>↓</span></button>
     </div>`;
   collection.append(card);
-  applyShowcaseMotion(card, index);
-
   const state = { count: Math.min(shape.initial, holeLimit), seed: 0, limit: holeLimit };
   states.set(shape.key, state);
   renderShape(card, shape, state);
@@ -541,8 +516,7 @@ if (presentApp) {
   function renderPresent() {
     const shape = activeShape();
     const holes = packedHoleLayout(shape, presentState.count, presentState.seed);
-    applyShowcaseMotion(art, presentState.index);
-    art.innerHTML = objectMarkup(shape, holes, 'present', true);
+    art.innerHTML = objectMarkup(shape, holes, 'present', true, { seed: presentState.seed });
     syncPresentControls();
   }
 

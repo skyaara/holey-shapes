@@ -1,6 +1,6 @@
 # holey-shapes
 
-Solid, perforated shapes for the web and SwiftUI, with a connected extrusion and a built-in hover spin. Pick from 15 shapes, set the face and shadow colors, and control the hole layout.
+Solid, perforated shapes for the web, SwiftUI, and Jetpack Compose, with a connected extrusion and built-in hole animation. Hovering closes and reopens the holes in a seeded random order while the body stays still.
 
 [live playground](https://holey-shapes.aakashreddy.com) · [npm package](https://www.npmjs.com/package/holey-shapes) · [source](https://github.com/skyaara/holey-shapes)
 
@@ -18,7 +18,7 @@ In Xcode, add `https://github.com/skyaara/holey-shapes` as a package dependency,
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.3")
+    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.4")
 ]
 ```
 
@@ -42,7 +42,7 @@ struct Logo: View {
 }
 ```
 
-The Swift SDK supports iOS 16+, macOS 13+, tvOS 16+, and visionOS 1+. It uses asynchronous SwiftUI `Canvas` rendering and caches the immutable shape paths, packing candidates, and finished hole layouts. The pointer hover animation follows Reduce Motion automatically.
+The Swift SDK supports iOS 16+, macOS 13+, tvOS 16+, and visionOS 1+. It uses asynchronous SwiftUI `Canvas` rendering and caches the immutable shape paths, packing candidates, and finished hole layouts. Pointer hover closes and reopens individual holes, and Reduce Motion disables the effect.
 
 ### Android
 
@@ -62,7 +62,7 @@ Then add the Compose SDK:
 
 ```kotlin
 dependencies {
-    implementation("com.github.skyaara:holey-shapes:v0.1.3")
+    implementation("com.github.skyaara:holey-shapes:v0.1.4")
 }
 ```
 
@@ -79,7 +79,7 @@ HoleyShapeView(
 )
 ```
 
-The Android SDK requires API 26 or newer and a consuming project compiled with API 35 or newer. It renders through the native Android canvas, caches geometry and packed layouts, and spins once when the shape or seed changes. Android's animation scale applies automatically.
+The Android SDK requires API 26 or newer and a consuming project compiled with API 35 or newer. It renders through the native Android canvas and caches geometry and packed layouts. Mouse and stylus hover close and reopen individual holes; touch-only avatars remain still. Android's animation scale applies automatically.
 
 ## Render an SVG string
 
@@ -139,8 +139,8 @@ The generated SVG scales to its container:
 | `shadowColor` | Darker face color | Six-digit hex extrusion color |
 | `holes` | Shape default | Hole count from 0 to 8 |
 | `seed` | `0` | Changes the hole layout |
-| `animated` | `true` | Includes the hover spin |
-| `duration` | `900` | Spin duration in milliseconds |
+| `animated` | `true` | Includes the hover hole animation |
+| `duration` | `900` | Total hole-animation duration in milliseconds |
 | `shadowX` | `18` | Horizontal extrusion offset |
 | `shadowY` | `21` | Vertical extrusion offset |
 | `shadowSteps` | `12` | Number of solid extrusion slices |

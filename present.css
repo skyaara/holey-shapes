@@ -80,9 +80,9 @@
   cursor: grab;
 }
 
-.present-canvas:hover .shape-spin,
-.present-canvas:focus-within .shape-spin {
-  animation: object-spin .9s cubic-bezier(.33, 0, .2, 1) both;
+.present-canvas:hover .hole-hover,
+.present-canvas:focus-within .hole-hover {
+  animation: hole-open-close var(--hole-duration) cubic-bezier(.33, 0, .2, 1) var(--hole-delay) both;
 }
 
 .present-caption {
