@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 /// A dependency-free SwiftUI renderer for the `holey-shapes` catalog.
@@ -155,3 +156,5 @@ public struct HoleyShapeView: View {
     }
   }
 }
+
+#endif

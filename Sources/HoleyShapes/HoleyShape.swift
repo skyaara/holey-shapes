@@ -13,7 +13,6 @@ public enum HoleyShape: String, CaseIterable, Identifiable, Sendable {
   case chevron
   case longBar = "long-bar"
   case flowerStar = "flower-star"
-  case flower
   case bowtie
 
   public var id: String { rawValue }
@@ -33,7 +32,6 @@ public enum HoleyShape: String, CaseIterable, Identifiable, Sendable {
     case .chevron: "Bent chevron"
     case .longBar: "Long bar"
     case .flowerStar: "Five-point bloom"
-    case .flower: "Daisy flower"
     case .bowtie: "Bowtie slab"
     }
   }
@@ -53,7 +51,6 @@ public enum HoleyShape: String, CaseIterable, Identifiable, Sendable {
     case .chevron: HoleyColor(red: 0x00, green: 0xC9, blue: 0xF2)
     case .longBar: HoleyColor(red: 0xFF, green: 0x4F, blue: 0xA3)
     case .flowerStar: HoleyColor(red: 0xFF, green: 0x76, blue: 0x57)
-    case .flower: HoleyColor(red: 0xC9, green: 0x4D, blue: 0xFF)
     case .bowtie: HoleyColor(red: 0x00, green: 0xD7, blue: 0xB9)
     }
   }
@@ -73,7 +70,6 @@ public enum HoleyShape: String, CaseIterable, Identifiable, Sendable {
     case .chevron: HoleyColor(red: 0xC9, green: 0xF3, blue: 0xFF)
     case .longBar: HoleyColor(red: 0xFF, green: 0xE0, blue: 0xEE)
     case .flowerStar: HoleyColor(red: 0xFF, green: 0xE1, blue: 0xD8)
-    case .flower: HoleyColor(red: 0xF2, green: 0xD8, blue: 0xFF)
     case .bowtie: HoleyColor(red: 0xD0, green: 0xF7, blue: 0xF0)
     }
   }
@@ -82,7 +78,7 @@ public enum HoleyShape: String, CaseIterable, Identifiable, Sendable {
     switch self {
     case .disc, .hex, .cross, .diamond, .sunburst, .longBar, .flowerStar: 5
     case .roundBlock, .capsule, .prism, .triangle, .chevron: 4
-    case .octagon, .flower, .bowtie: 6
+    case .octagon, .bowtie: 6
     }
   }
 
@@ -100,6 +96,12 @@ public struct HoleyShapeInfo: Hashable, Identifiable, Sendable {
 }
 
 public enum HoleyShapes {
+  /// Generates a full packed layout without a view, Canvas, or CoreGraphics.
+  public static func layout(shape: HoleyShape = .disc, count: Int? = nil, seed: Int = 0) -> [Hole] {
+    HolePacking.layout(shape: shape, count: min(shape.maximumHoleCount, max(0, count ?? shape.defaultHoleCount)),
+                       seed: min(1_000_000, max(-1_000_000, seed)))
+  }
+
   public static let catalog: [HoleyShapeInfo] = HoleyShape.allCases.map {
     HoleyShapeInfo(shape: $0, name: $0.name, color: $0.color)
   }

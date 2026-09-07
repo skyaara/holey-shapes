@@ -12,7 +12,6 @@ export type HoleyShapeKey =
   | 'chevron'
   | 'long-bar'
   | 'flower-star'
-  | 'flower'
   | 'bowtie';
 
 export interface HoleyOptions {

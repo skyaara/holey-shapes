@@ -18,7 +18,7 @@ In Xcode, add `https://github.com/skyaara/holey-shapes` as a package dependency,
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "0.1.4")
+    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "2.0.0")
 ]
 ```
 
@@ -31,7 +31,7 @@ import SwiftUI
 struct Logo: View {
     var body: some View {
         HoleyShapeView(
-            .flower,
+            .prism,
             faceColor: HoleyColor(hex: "#FF4FA3"),
             shadowColor: HoleyColor(hex: "#7A1748"),
             holes: 6,
@@ -62,7 +62,7 @@ Then add the Compose SDK:
 
 ```kotlin
 dependencies {
-    implementation("com.github.skyaara:holey-shapes:v0.1.4")
+    implementation("com.github.skyaara:holey-shapes:v2.0.0")
 }
 ```
 
@@ -81,13 +81,44 @@ HoleyShapeView(
 
 The Android SDK requires API 26 or newer and a consuming project compiled with API 35 or newer. It renders through the native Android canvas and caches geometry and packed layouts. Mouse and stylus hover close and reopen individual holes; touch-only avatars remain still. Android's animation scale applies automatically.
 
+## Generate layouts in Swift and JVM processes
+
+Swift packing uses Foundation and plain geometry. It needs no SwiftUI view or CoreGraphics context. The package conditionally includes its SwiftUI renderer on supported Apple platforms.
+
+```swift
+import HoleyShapes
+
+let holes = HoleyShapes.layout(shape: .prism, count: 6, seed: 2)
+// Each hole exposes cx, cy, rx, ry, and rotation.
+```
+
+The Kotlin `core` module is a standalone JVM library with no Android or Compose dependencies. The Android SDK uses this same core. For a local JVM consumer, run `./gradlew :core:publishToMavenLocal`, enable `mavenLocal()`, and add `com.github.skyaara:holey-shapes-core:2.0.0`. For JitPack, the standalone module coordinate is `com.github.skyaara.holey-shapes:holey-shapes-core:v2.0.0`.
+
+```kotlin
+import com.aakashreddy.holeyshapes.core.HoleyPacking
+import com.aakashreddy.holeyshapes.core.HoleyShape
+
+val holes = HoleyPacking.layout(HoleyShape.Prism, count = 6, seed = 2)
+```
+
+Both APIs use full equal-area packing, clamp counts to 0–8 and seeds to ±1,000,000, and cache layouts. They never substitute preset layouts. Floating-point differences between language runtimes can produce different positions; byte-identical layouts across Swift, Kotlin, and JavaScript are not guaranteed.
+
+Run the process checks locally:
+
+```sh
+swift run --package-path tests/native/swift -c release Verify /tmp/swift-layouts.json
+./gradlew :core:verifyPacking
+# Independent Canvas checks require Playwright and installed Google Chrome.
+node scripts/verify-native-layouts.mjs /tmp/swift-layouts.json core/build/packing-layouts.json
+```
+
 ## Render an SVG string
 
 ```js
 import { createHoleySvg } from 'holey-shapes';
 
 const svg = createHoleySvg({
-  shape: 'flower',
+  shape: 'prism',
   color: '#FF4FA3',
   shadowColor: '#7A1748',
   holes: 6,
@@ -145,7 +176,7 @@ The generated SVG scales to its container:
 | `shadowY` | `21` | Vertical extrusion offset |
 | `shadowSteps` | `12` | Number of solid extrusion slices |
 
-Available shape keys: `disc`, `round-block`, `hex`, `capsule`, `prism`, `cross`, `triangle`, `diamond`, `sunburst`, `octagon`, `chevron`, `long-bar`, `flower-star`, `flower`, and `bowtie`.
+Available shape keys: `disc`, `round-block`, `hex`, `capsule`, `prism`, `cross`, `triangle`, `diamond`, `sunburst`, `octagon`, `chevron`, `long-bar`, `flower-star`, and `bowtie`.
 
 You can also build a picker from the exported metadata:
 
@@ -159,6 +190,6 @@ for (const { key, name, color } of shapeNames) {
 
 ## Browser support
 
-The package has no runtime dependencies. Browsers with Canvas `Path2D` get the full packed-hole layout. Server-side rendering uses the built-in deterministic fallback layout.
+The package has no runtime dependencies. Node processes, server-side rendering, and browsers use the same JavaScript geometry and full hole-packing algorithm. SVG generation needs no DOM, Canvas, or `Path2D`; identical options produce identical SVG markup. Only `mountHoleyShape` and interactive animation require a browser.
 
 The hover animation respects `prefers-reduced-motion`.

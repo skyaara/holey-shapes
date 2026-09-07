@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(SwiftUI)
 import SwiftUI
+#endif
 
 /// A portable RGB color used by ``HoleyShapeView``.
 public struct HoleyColor: Hashable, Sendable {
@@ -28,6 +30,7 @@ public struct HoleyColor: Hashable, Sendable {
     String(format: "#%02X%02X%02X", red, green, blue)
   }
 
+  #if canImport(SwiftUI)
   public var swiftUIColor: Color {
     Color(
       red: Double(red) / 255,
@@ -35,6 +38,8 @@ public struct HoleyColor: Hashable, Sendable {
       blue: Double(blue) / 255
     )
   }
+
+  #endif
 
   func darkened(by factor: Double = 0.52) -> HoleyColor {
     func channel(_ value: UInt8) -> UInt8 {

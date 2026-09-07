@@ -1,3 +1,5 @@
+import { compileShapePath } from './geometry.js';
+
 const h = (cx, cy, rx, ry, rotate = 0) => ({ cx, cy, rx, ry, rotate });
 
 const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -111,11 +113,6 @@ export const shapes = [
     holes: [h(210,104,18,24),h(304,174,23,17,20),h(269,282,18,24,-22),h(151,282,22,17,18),h(116,174,17,23,-18),h(210,210,23,18),h(254,211,16,21,12),h(168,210,16,21,-12)]
   },
   {
-    key: 'flower', name: 'Daisy flower', color: '#C94DFF', bg: '#F2D8FF', initial: 6,
-    path: 'M315 210A105 105 0 1 1 105 210A105 105 0 1 1 315 210ZM210 20A60 90 0 1 1 210 200A60 90 0 1 1 210 20ZM374.5 115A60 90 60 1 1 218.7 205A60 90 60 1 1 374.5 115ZM374.5 305A60 90 120 1 1 218.7 215A60 90 120 1 1 374.5 305ZM210 400A60 90 0 1 1 210 220A60 90 0 1 1 210 400ZM45.5 305A60 90 60 1 1 201.3 215A60 90 60 1 1 45.5 305ZM45.5 115A60 90 120 1 1 201.3 205A60 90 120 1 1 45.5 115Z',
-    holes: [h(210,104,18,24),h(304,174,23,17,20),h(269,282,18,24,-22),h(151,282,22,17,18),h(116,174,17,23,-18),h(210,210,23,18),h(254,211,16,21,12),h(168,210,16,21,-12)]
-  },
-  {
     key: 'bowtie', name: 'Bowtie slab', color: '#00D7B9', bg: '#D0F7F0', initial: 6,
     path: 'M40 70H380L286 210 380 350H40L134 210Z',
     holes: [h(98,126,20,15,-15),h(190,116,16,22,8),h(322,126,20,15,15),h(322,294,20,15,-15),h(230,304,16,22,-8),h(98,294,20,15,15),h(176,210,15,20),h(244,210,15,20)]
@@ -128,17 +125,7 @@ const SHADOW_X = 18;
 const SHADOW_Y = 21;
 const SHADOW_STEPS = 12;
 const states = new Map();
-let packingContext = null;
 const packingCache = new Map();
-function getPackingContext() {
-  if (packingContext) return packingContext;
-  if (!isBrowser || typeof Path2D === 'undefined') return null;
-  const packingCanvas = document.createElement('canvas');
-  packingCanvas.width = 420;
-  packingCanvas.height = 420;
-  packingContext = packingCanvas.getContext('2d');
-  return packingContext;
-}
 
 const holeMarkup = ({ cx, cy, rx, ry, rotate }) =>
   `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rotate ? ` transform="rotate(${rotate} ${cx} ${cy})"` : ''}/>`;
@@ -158,20 +145,17 @@ function darkShadow(color, factor = 0.52) {
 }
 
 function circleFits(path, cx, cy, radius) {
-  const context = getPackingContext();
-  if (!context) return false;
   for (let step = 0; step < 32; step += 1) {
     const angle = (Math.PI * 2 * step) / 32;
     const x = cx + Math.cos(angle) * radius;
     const y = cy + Math.sin(angle) * radius;
-    if (!context.isPointInPath(path, x, y)) return false;
+    if (!path.contains(x, y)) return false;
   }
   return true;
 }
 
 function boundaryClearance(path, cx, cy) {
-  const context = getPackingContext();
-  if (!context || !context.isPointInPath(path, cx, cy)) return 0;
+  if (!path.contains(cx, cy)) return 0;
   let low = 0;
   let high = 180;
   for (let pass = 0; pass < 9; pass += 1) {
@@ -184,13 +168,11 @@ function boundaryClearance(path, cx, cy) {
 
 function packingCandidates(shape) {
   if (packingCache.has(shape.key)) return packingCache.get(shape.key);
-  const context = getPackingContext();
-  if (!context) return { path: null, candidates: [] };
-  const path = new Path2D(shape.path);
+  const path = compileShapePath(shape.path);
   const candidates = [];
   for (let y = 50; y <= 370; y += 12) {
     for (let x = 50; x <= 370; x += 12) {
-      if (!context.isPointInPath(path, x, y)) continue;
+      if (!path.contains(x, y)) continue;
       const clearance = boundaryClearance(path, x, y);
       if (clearance >= 17) candidates.push({ x, y, clearance });
     }
@@ -222,13 +204,118 @@ function assignVoronoiCells(points, candidates) {
   return cells;
 }
 
+// Shrink to the smallest fitted area so spacing and oval proportions stay intact.
+function equalizeHoleAreas(holes) {
+  if (!holes.length) return holes;
+  const targetArea = Math.min(...holes.map(({ rx, ry }) => rx * ry));
+  return holes.map((hole) => {
+    const scale = Math.sqrt(targetArea / (hole.rx * hole.ry));
+    return {
+      ...hole,
+      rx: Number((hole.rx * scale).toFixed(3)),
+      ry: Number((hole.ry * scale).toFixed(3))
+    };
+  });
+}
+
+// Equal-area ellipses use radius sqrt(rx * ry). Support projections give a
+// separating line with a 12-unit gap, including for differently rotated ovals.
+const packingDirections = Array.from({ length: 48 }, (_, i) => {
+  const angle = i * Math.PI * 2 / 48;
+  return { x: Math.cos(angle), y: Math.sin(angle) };
+});
+const perimeterDirections = Array.from({ length: 192 }, (_, i) => {
+  const angle = i * Math.PI * 2 / 192;
+  return { x: Math.cos(angle), y: Math.sin(angle) };
+});
+const optimizedLayoutCache = new Map();
+
+function maximizeHoleAreas(shape, holes) {
+  if (!holes.length) return holes;
+  const { path } = packingCandidates(shape);
+  const gap = 12;
+  const profiles = holes.map(hole => {
+    const a = Math.sqrt(hole.rx / hole.ry);
+    const b = 1 / a;
+    const angle = hole.rotate * Math.PI / 180;
+    const c = Math.cos(angle), s = Math.sin(angle);
+    return {
+      a, b,
+      support: packingDirections.map(n => Math.hypot(a * (n.x * c + n.y * s), b * (-n.x * s + n.y * c))),
+      edge: perimeterDirections.map(n => {
+        const nx = n.x / a, ny = n.y / b;
+        const length = Math.hypot(nx, ny);
+        return { x: a * n.x * c - b * n.y * s, y: a * n.x * s + b * n.y * c,
+          nx: (nx * c - ny * s) / length, ny: (nx * s + ny * c) / length };
+      })
+    };
+  });
+  const points = holes.map(h => ({ x: h.cx, y: h.cy }));
+  function boundaryLimit(point, profile) {
+    if (!path.contains(point.x, point.y)) return 0;
+    let low = 0, high = 180;
+    for (let pass = 0; pass < 11; pass++) {
+      const radius = (low + high) / 2;
+      // An extra rim unit covers the space between perimeter samples.
+      const fits = profile.edge.every(e => path.contains(
+        point.x + radius * e.x + (gap + 1) * e.nx, point.y + radius * e.y + (gap + 1) * e.ny));
+      if (fits) low = radius; else high = radius;
+    }
+    return low;
+  }
+  const boundaries = points.map((p, i) => boundaryLimit(p, profiles[i]));
+  function capacity(point, index, boundary) {
+    let limit = boundary;
+    points.forEach((other, j) => {
+      if (j === index) return;
+      let separation = 0;
+      packingDirections.forEach((n, k) => {
+        separation = Math.max(separation, (Math.abs((point.x - other.x) * n.x + (point.y - other.y) * n.y) - gap)
+          / (profiles[index].support[k] + profiles[j].support[k]));
+      });
+      limit = Math.min(limit, separation);
+    });
+    return limit;
+  }
+  // Coordinate search improves each constrained hole, then refines its position.
+  for (const step of [12, 6, 3, 1.5]) {
+    for (let pass = 0; pass < 3; pass++) {
+      let moved = false;
+      points.forEach((point, i) => {
+        let best = point, bestBoundary = boundaries[i];
+        let bestLimit = capacity(point, i, bestBoundary);
+        for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]) {
+          const candidate = { x: point.x + dx * step, y: point.y + dy * step };
+          const boundary = boundaryLimit(candidate, profiles[i]);
+          const limit = capacity(candidate, i, boundary);
+          if (limit > bestLimit + 0.02) {
+            best = candidate; bestBoundary = boundary; bestLimit = limit;
+          }
+        }
+        if (best !== point) moved = true;
+        points[i] = best; boundaries[i] = bestBoundary;
+      });
+      if (!moved) break;
+    }
+  }
+  const radius = Math.max(0, Math.min(...points.map((p, i) => capacity(p, i, boundaries[i]))) - 0.05);
+  return holes.map((hole, i) => ({ ...hole, cx: points[i].x, cy: points[i].y,
+    rx: Number((radius * profiles[i].a).toFixed(3)), ry: Number((radius * profiles[i].b).toFixed(3)) }));
+}
+
 function packedHoleLayout(shape, count, seed) {
+  const key = `${shape.key}:${count}:${seed}`;
+  if (optimizedLayoutCache.has(key)) return optimizedLayoutCache.get(key);
+  const holes = maximizeHoleAreas(shape, initialHoleLayout(shape, count, seed));
+  if (optimizedLayoutCache.size >= 512) optimizedLayoutCache.delete(optimizedLayoutCache.keys().next().value);
+  optimizedLayoutCache.set(key, holes);
+  return holes;
+}
+
+function initialHoleLayout(shape, count, seed) {
   if (count === 0) return [];
   const { candidates } = packingCandidates(shape);
-  if (!candidates.length) {
-    const start = ((Math.trunc(seed) % shape.holes.length) + shape.holes.length) % shape.holes.length;
-    return Array.from({ length: count }, (_, index) => ({ ...shape.holes[(start + index) % shape.holes.length] }));
-  }
+  if (candidates.length < count) throw new Error(`Insufficient packing space for ${shape.key}`);
   const maximumClearance = Math.max(...candidates.map(({ clearance }) => clearance));
   const starterPool = candidates.filter(({ clearance }) => clearance >= maximumClearance * 0.72);
   const first = seed === 0
@@ -271,12 +358,12 @@ function packedHoleLayout(shape, count, seed) {
   }
 
   const cells = assignVoronoiCells(selected, candidates);
-  return selected.map((point, index) => {
+  return equalizeHoleAreas(selected.map((point, index) => {
     const nearest = selected.length === 1
       ? Infinity
       : Math.min(...selected.filter((_, otherIndex) => otherIndex !== index).map((other) =>
           Math.hypot(point.x - other.x, point.y - other.y)));
-    const style = shape.holes[(index + seed) % shape.holes.length];
+    const style = shape.holes[((index + seed) % shape.holes.length + shape.holes.length) % shape.holes.length];
     const styleRadius = Math.max(style.rx, style.ry);
     const aspectArea = (style.rx / styleRadius) * (style.ry / styleRadius);
     const territoryArea = cells[index].length * 144;
@@ -290,7 +377,7 @@ function packedHoleLayout(shape, count, seed) {
       ry: Math.round(radius * (style.ry / styleRadius)),
       rotate: style.rotate
     };
-  });
+  }));
 }
 
 function svgMarkup(shape, holes, className, maskSuffix, accessible = false) {

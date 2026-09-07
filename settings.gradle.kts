@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "holey-shapes"
+
+include(":core")

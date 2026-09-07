@@ -26,7 +26,6 @@ enum class HoleyShape(
     Chevron("chevron", "Bent chevron", Color(0xFF00C9F2), Color(0xFFC9F3FF), 4),
     LongBar("long-bar", "Long bar", Color(0xFFFF4FA3), Color(0xFFFFE0EE), 5),
     FlowerStar("flower-star", "Five-point bloom", Color(0xFFFF7657), Color(0xFFFFE1D8), 5),
-    Flower("flower", "Daisy flower", Color(0xFFC94DFF), Color(0xFFF2D8FF), 6),
     Bowtie("bowtie", "Bowtie slab", Color(0xFF00D7B9), Color(0xFFD0F7F0), 6),
     ;
 

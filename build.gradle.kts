@@ -11,7 +11,7 @@ plugins {
 group = providers.gradleProperty("group").orElse("com.github.skyaara").get()
 version = providers.gradleProperty("version")
     .orElse(providers.environmentVariable("VERSION"))
-    .orElse("0.1.4-SNAPSHOT")
+    .orElse("2.0.0")
     .get()
 
 extensions.configure<LibraryExtension> {
@@ -55,6 +55,7 @@ kotlin {
 }
 
 dependencies {
+    api(project(":core"))
     api("androidx.compose.ui:ui:1.9.4")
     implementation("androidx.compose.animation:animation-core:1.9.4")
     implementation("androidx.compose.foundation:foundation:1.9.4")

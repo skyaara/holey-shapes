@@ -1,4 +1,3 @@
-import CoreGraphics
 import Foundation
 
 enum HolePacking {
@@ -36,19 +35,24 @@ enum HolePacking {
       return cached.value
     }
 
-    let value = makeLayout(shape: shape, count: count, seed: seed)
+    let value = HoleOptimization.maximize(shape: shape, holes: equalizeHoleAreas(makeLayout(shape: shape, count: count, seed: seed)))
     cache.layouts.setObject(LayoutBox(value), forKey: cacheKey, cost: value.count)
     return value
+  }
+
+  // Shrinking preserves each fitted hole's spacing and oval proportions.
+  private static func equalizeHoleAreas(_ holes: [Hole]) -> [Hole] {
+    guard let targetArea = holes.map({ $0.rx * $0.ry }).min() else { return holes }
+    return holes.map { hole in
+      let scale = sqrt(targetArea / (hole.rx * hole.ry))
+      return Hole(hole.cx, hole.cy, hole.rx * scale, hole.ry * scale, hole.rotation)
+    }
   }
 
   private static func makeLayout(shape: HoleyShape, count: Int, seed: Int) -> [Hole] {
     guard count > 0 else { return [] }
     let candidates = packingCandidates(for: shape)
-    guard !candidates.isEmpty else {
-      let templates = shape.templates
-      let start = positiveModulo(seed, templates.count)
-      return (0..<count).map { templates[(start + $0) % templates.count] }
-    }
+    precondition(candidates.count >= count, "Insufficient packing space")
 
     let maximumClearance = candidates.lazy.map(\.clearance).max() ?? 0
     let starterPool = candidates.filter { $0.clearance >= maximumClearance * 0.72 }
@@ -137,11 +141,11 @@ enum HolePacking {
       return cached.value
     }
 
-    let path = ShapeGeometry.bodyPath(for: shape)
+    let path = ShapeContainment.path(for: shape)
     var candidates: [Candidate] = []
     for y in stride(from: 50, through: 370, by: 12) {
       for x in stride(from: 50, through: 370, by: 12) {
-        guard path.contains(CGPoint(x: x, y: y), using: .winding) else { continue }
+        guard path.contains(Double(x), Double(y)) else { continue }
         let clearance = boundaryClearance(path, Double(x), Double(y))
         if clearance >= 17 {
           candidates.append(Candidate(x: Double(x), y: Double(y), clearance: clearance))
@@ -152,8 +156,8 @@ enum HolePacking {
     return candidates
   }
 
-  private static func boundaryClearance(_ path: CGPath, _ cx: Double, _ cy: Double) -> Double {
-    guard path.contains(CGPoint(x: cx, y: cy), using: .winding) else { return 0 }
+  private static func boundaryClearance(_ path: ShapeContainment, _ cx: Double, _ cy: Double) -> Double {
+    guard path.contains(cx, cy) else { return 0 }
     var low = 0.0
     var high = 180.0
     for _ in 0..<9 {
@@ -167,13 +171,12 @@ enum HolePacking {
     return low
   }
 
-  private static func circleFits(_ path: CGPath, _ cx: Double, _ cy: Double, _ radius: Double)
+  private static func circleFits(_ path: ShapeContainment, _ cx: Double, _ cy: Double, _ radius: Double)
     -> Bool
   {
     for step in 0..<32 {
       let angle = Double.pi * 2 * Double(step) / 32
-      let point = CGPoint(x: cx + cos(angle) * radius, y: cy + sin(angle) * radius)
-      if !path.contains(point, using: .winding) {
+      if !path.contains(cx + cos(angle) * radius, cy + sin(angle) * radius) {
         return false
       }
     }

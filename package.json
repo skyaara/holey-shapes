@@ -1,6 +1,6 @@
 {
   "name": "holey-shapes",
-  "version": "0.1.4",
+  "version": "2.0.0",
   "description": "Colorful perforated SVG shapes with solid extrusion and animated holes.",
   "type": "module",
   "license": "MIT",
@@ -31,6 +31,7 @@
   "files": [
     "index.js",
     "script.js",
+    "geometry.js",
     "index.d.ts",
     "README.md",
     "LICENSE"
@@ -57,7 +58,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node tests/package.test.mjs && node tests/site.test.mjs",
+    "test": "node tests/package.test.mjs && node tests/packing.test.mjs && node tests/site.test.mjs",
     "prepublishOnly": "npm test && npm run build"
   },
   "devDependencies": {

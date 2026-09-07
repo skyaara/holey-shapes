@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { createHoleySvg, seededHoleyOptions, shapeNames } from '../script.js';
 
-assert.equal(shapeNames.length, 15);
-assert.ok(shapeNames.some(({ key }) => key === 'flower'));
+assert.equal(shapeNames.length, 14);
+assert.ok(!shapeNames.some(({ key }) => key === 'flower'));
+assert.ok(shapeNames.some(({ key }) => key === 'flower-star'));
 
 const svg = createHoleySvg({
-  shape: 'flower',
+  shape: 'prism',
   color: '#12ABEF',
   shadowColor: '#06405A',
   holes: 6,
