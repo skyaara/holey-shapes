@@ -2,7 +2,7 @@
 // PLAYWRIGHT_MODULE may point to an existing Playwright installation.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { shapes } from '../index.js';
+import { shapes } from '../packages/js/index.js';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch({ headless: true, channel: 'chrome' });
 try {

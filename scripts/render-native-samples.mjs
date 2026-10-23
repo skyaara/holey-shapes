@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { shapes } from '../index.js';
+import { shapes } from '../packages/js/index.js';
 const folder = new URL('../artifacts/native-verification/', import.meta.url);
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const sections = [];

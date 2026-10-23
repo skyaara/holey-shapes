@@ -14,6 +14,6 @@ let package = Package(
     .library(name: "HoleyShapes", targets: ["HoleyShapes"])
   ],
   targets: [
-    .target(name: "HoleyShapes")
+    .target(name: "HoleyShapes", path: "packages/swift/Sources/HoleyShapes")
   ]
 )

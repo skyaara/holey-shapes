@@ -1,0 +1,63 @@
+{
+  "name": "holey-shapes",
+  "version": "2.0.0",
+  "description": "Colorful perforated SVG shapes with solid extrusion and animated holes.",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Aakash Reddy",
+    "email": "kondampallyaakash@gmail.com",
+    "url": "https://github.com/skyaara"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyaara/holey-shapes.git",
+    "directory": "packages/js"
+  },
+  "homepage": "https://github.com/skyaara/holey-shapes#readme",
+  "bugs": {
+    "url": "https://github.com/skyaara/holey-shapes/issues"
+  },
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "script.js",
+    "geometry.js",
+    "doodle.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "svg",
+    "svg-generator",
+    "svg-animation",
+    "shapes",
+    "animation",
+    "perforated",
+    "extrusion",
+    "creative-coding",
+    "generative-art",
+    "web"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node tests/package.test.mjs && node tests/packing.test.mjs",
+    "prepublishOnly": "npm test"
+  }
+}

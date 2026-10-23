@@ -1,0 +1,21 @@
+{
+  "name": "holey-shapes",
+  "short_name": "holey-shapes",
+  "description": "Deterministic avatars from any ID.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F4F0",
+  "theme_color": "#F5F4F0",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

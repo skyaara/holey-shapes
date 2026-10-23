@@ -2,4 +2,4 @@ jdk:
   - openjdk17
 
 install:
-  - ./gradlew clean publishReleasePublicationToMavenLocal :core:publishCorePublicationToMavenLocal
+  - cd packages/android && ./gradlew clean publishReleasePublicationToMavenLocal :core:publishCorePublicationToMavenLocal

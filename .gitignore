@@ -7,3 +7,8 @@ local.properties
 *.tgz
 .DS_Store
 npm-debug.log*
+.kotlin/
+artifacts/
+web/src/generated/
+.wrangler/
+.claude/
