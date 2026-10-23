@@ -1,7 +1,7 @@
 import { createHoleySvg, identityHash, seededHoleyOptions, shapes } from '../../packages/js/index.js';
 
 // Makes as many avatars as it can in its time budget: a random username, its
-// hash, a seeded layout and a doodle SVG. Work runs in short slices so pause
+// hash, a seeded layout and a solid SVG. Work runs in short slices so pause
 // messages get through. Every name and hash goes to the page, but only the
 // newest SVG does, since the page shows one avatar at a time. Each holey is
 // stamped with the active time it finished at, for the page's timeline.
@@ -30,7 +30,7 @@ function slice() {
     const username = `${pick(moods)}${pick(things)}${(Math.random() * 10000) | 0}`;
     names.push(username);
     hashes.push(identityHash(username));
-    svg = createHoleySvg({ ...seededHoleyOptions(username, false), doodle: true, idPrefix: `bench-${total++}` });
+    svg = createHoleySvg({ ...seededHoleyOptions(username, false), doodle: false, idPrefix: `bench-${total++}` });
     times.push(active + performance.now() - started);
   } while (performance.now() < end);
   const spent = performance.now() - started;
@@ -62,6 +62,6 @@ self.onmessage = ({ data }) => {
 // A one-second run is short enough that compiling shape outlines and JIT
 // warm-up would dominate it, so do both before the clock starts.
 for (let round = 0; round < 3; round++) {
-  for (const { key } of shapes) createHoleySvg({ shape: key, seed: round + 1, doodle: true });
+  for (const { key } of shapes) createHoleySvg({ shape: key, seed: round + 1, animated: false });
 }
 self.postMessage({ type: 'ready' });

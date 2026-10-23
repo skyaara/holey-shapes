@@ -3,7 +3,7 @@ import './chrome.js';
 import { highlight } from './highlight.js';
 
 // Packing a new layout can take tens of milliseconds, so SVGs are built in
-// workers. The hero gets its own worker so typing never waits on the gallery.
+// workers. Each area gets its own worker so typing never waits on the gallery.
 function createRenderer() {
   let worker;
   try {
@@ -28,7 +28,7 @@ function createRenderer() {
   });
 }
 
-const renderHero = createRenderer();
+const renderIdentity = createRenderer();
 const renderGallery = createRenderer();
 const renderDemo = createRenderer();
 
@@ -52,8 +52,16 @@ function latestOnly(render) {
     if (!busy) run();
   };
 }
-const drawPick = latestOnly(renderDemo);
-const drawLive = latestOnly(renderDemo);
+
+const byId = (id) => document.getElementById(id);
+const format = (value) => Math.round(value).toLocaleString('en-US');
+const duration = (ms) => (ms < 1 ? `${Math.max(1, Math.round(ms * 1000))} µs` : `${ms.toFixed(ms < 10 ? 2 : 1)} ms`);
+const solid = (options) => ({ animated: false, ...options, doodle: false });
+
+function paint(avatar, svg) {
+  avatar.innerHTML = svg;
+  avatar.classList.add('ready');
+}
 
 // Bench: one worker makes avatars for one second, the same single thread an
 // app would use. The page shows the newest one each frame and keeps every name,
@@ -61,15 +69,13 @@ const drawLive = latestOnly(renderDemo);
 const BENCH_MS = 1000;
 const ROW_HEIGHT = 30;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const format = (value) => Math.round(value).toLocaleString('en-US');
-const byId = (id) => document.getElementById(id);
-const perHoley = (ms) => `${ms.toFixed(ms < 10 ? 2 : 1)} ms`;
 const bench = {
   count: byId('bench-count'), avg: byId('bench-avg'), rate: byId('bench-rate'), time: byId('bench-time'),
   run: byId('bench-run'), summary: byId('bench-summary'), avatar: byId('bench-avatar'),
   name: byId('bench-name'), hash: byId('bench-hash'), redraw: byId('bench-redraw'),
   feed: byId('bench-feed'), space: byId('bench-feed-space'), slider: byId('bench-slider'), position: byId('bench-position'),
 };
+const drawPick = latestOnly(renderDemo);
 const names = [];
 const hashes = [];
 const times = [];
@@ -84,6 +90,8 @@ let shownCount = 0;
 let feedDirty = true;
 let lastPaint = 0;
 let raf = 0;
+// Everything below the hero waits for the first bench, finished or paused, so
+// it does not compete for cores while the bench is measuring.
 let resolveFirst;
 const firstBench = new Promise((resolve) => { resolveFirst = resolve; });
 
@@ -128,13 +136,13 @@ function paintBench(now) {
   bench.time.textContent = (ms / 1000).toFixed(2);
   if (benchState !== 'done') {
     bench.rate.textContent = ms > 100 ? format((names.length * 1000) / ms) : '0';
-    bench.avg.textContent = names.length ? perHoley(ms / names.length) : '–';
+    bench.avg.textContent = names.length ? duration(ms / names.length) : '–';
   }
   // The timeline doubles as the progress bar: filled up to the time spent.
   bench.slider.style.setProperty('--done', `${(ms / BENCH_MS) * 100}%`);
   if (latestSvg && selected < 0 && (!reduceMotion || now - lastPaint > 250)) {
     lastPaint = now;
-    bench.avatar.innerHTML = latestSvg;
+    paint(bench.avatar, latestSvg);
     latestSvg = '';
     bench.name.textContent = names[names.length - 1];
     bench.hash.textContent = hashes[hashes.length - 1];
@@ -159,7 +167,8 @@ function requestPaint() {
 function setBenchState(state) {
   benchState = state;
   bench.run.disabled = state === 'idle';
-  bench.run.textContent = { idle: 'Starting…', running: 'Pause ❚❚', paused: 'Resume ▶', done: 'Run again ↻' }[state];
+  bench.run.dataset.state = state;
+  bench.run.textContent = { idle: 'Starting…', running: 'Pause', paused: 'Resume', done: 'Run again' }[state];
 }
 
 function finishBench(ms) {
@@ -170,7 +179,7 @@ function finishBench(ms) {
   setBenchState('done');
   const seconds = Math.max(ms, 1) / 1000;
   bench.rate.textContent = format(names.length / seconds);
-  bench.avg.textContent = names.length ? perHoley((seconds * 1000) / names.length) : '–';
+  bench.avg.textContent = names.length ? duration((seconds * 1000) / names.length) : '–';
   bench.summary.textContent = `${format(names.length)} holeys in ${seconds.toFixed(2)} s, ${bench.avg.textContent} each.`;
   cancelAnimationFrame(raf);
   paintBench(performance.now());
@@ -225,6 +234,7 @@ function pauseBench() {
   setBenchState('paused');
   benchWorker.postMessage({ type: 'pause' });
   requestPaint();
+  resolveFirst();
 }
 
 function resumeBench() {
@@ -256,9 +266,9 @@ function selectHoley(index, { scroll = true, time } = {}) {
   feedDirty = true;
   requestPaint();
   const started = performance.now();
-  drawPick({ ...seededHoleyOptions(username, false), doodle: true, idPrefix: 'bench-pick' }, ({ svg }) => {
+  drawPick(solid({ ...seededHoleyOptions(username, false), idPrefix: 'bench-pick' }), ({ svg }) => {
     if (selected !== index) return;
-    bench.avatar.innerHTML = svg;
+    paint(bench.avatar, svg);
     bench.redraw.textContent = `Redrawn from the name in ${(performance.now() - started).toFixed(1)} ms`;
   });
 }
@@ -289,68 +299,142 @@ bench.feed.addEventListener('click', (event) => {
 bench.feed.addEventListener('scroll', () => { feedDirty = true; requestPaint(); }, { passive: true });
 addEventListener('resize', () => { feedDirty = true; requestPaint(); });
 startBench();
-// Each shape's outline is compiled the first time it is drawn, so do that up
-// front to keep clicks and keystrokes at their steady-state speed.
-shapes.forEach(({ key }) => renderDemo({ shape: key, doodle: true }));
 
-// Type anything: hashed on the spot, drawn in a worker, timed end to end.
-const liveInput = byId('live-input');
-const liveAvatar = byId('live-avatar');
-function updateLive() {
-  const started = performance.now();
-  const value = liveInput.value;
-  byId('live-hash').textContent = identityHash(value);
-  drawLive({ ...seededHoleyOptions(value, false), doodle: true, idPrefix: 'live' }, ({ svg }) => {
-    liveAvatar.innerHTML = svg;
-    liveAvatar.classList.add('ready');
-    byId('live-ms').textContent = `${(performance.now() - started).toFixed(1)} ms`;
-  });
-}
-liveInput.addEventListener('input', updateLive);
-updateLive();
-const doodle = { doodle: true, animated: false };
-
-function paint(avatar, svg) {
-  avatar.innerHTML = svg;
-  avatar.classList.add('ready');
-}
-
-// Gallery avatars wait for the first bench so they do not compete for cores.
+// Gallery avatars render as they approach the viewport, after the first bench.
+const pendingFills = new Map();
+const observer = 'IntersectionObserver' in window
+  ? new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      observer.unobserve(entry.target);
+      pendingFills.get(entry.target)?.();
+      pendingFills.delete(entry.target);
+    }
+  }, { rootMargin: '600px 0px' })
+  : null;
 function fill(avatar, options) {
-  return firstBench
-    .then(() => renderGallery({ ...doodle, ...options }))
-    .then(({ svg }) => paint(avatar, svg));
+  const job = () => firstBench.then(() => renderGallery(options)).then(({ svg }) => paint(avatar, svg));
+  if (!observer) return void job();
+  pendingFills.set(avatar, job);
+  observer.observe(avatar);
 }
 
-function cell(container, caption, className = 'cell') {
-  const figure = document.createElement('figure');
-  figure.className = className;
+function avatarElement(className = 'avatar') {
   const avatar = document.createElement('div');
-  avatar.className = 'avatar';
-  figure.append(avatar);
-  if (caption !== undefined) {
-    const label = document.createElement('figcaption');
-    label.textContent = caption;
-    figure.append(label);
-  }
-  container.append(figure);
+  avatar.className = className;
   return avatar;
 }
 
-// Make yours: every control writes into one options object and redraws.
+// Identity: one name drives the hash flow, the devices and the steps, so
+// every section tells the same story.
+const idInput = byId('id-input');
+const deviceAvatars = [...document.querySelectorAll('[data-device]')];
+const drawIdentity = latestOnly((options) => Promise.all(options.map(renderIdentity)));
+const hashMarkup = (hash) => hash.match(/.{4}/g).map((group) => `<span>${group}</span>`).join('');
+
+// The same name with its last character nudged, for the "one letter off" pair.
+function oneLetterOff(name) {
+  const characters = Array.from(name);
+  const last = characters.pop() ?? '';
+  const next = /[a-yA-Y0-8]/.test(last) ? String.fromCharCode(last.charCodeAt(0) + 1)
+    : last === 'z' ? 'a' : last === 'Z' ? 'A' : last === '9' ? '0' : `${last}a`;
+  return characters.join('') + next;
+}
+
+function outlineSvg(shape, inner = '') {
+  return `<svg viewBox="-4 -4 428 428" aria-hidden="true"><path d="${shape.path}" fill="${shape.color}" fill-opacity="0.12" stroke="${shape.color}" stroke-width="5" stroke-linejoin="round" stroke-dasharray="16 12"/>${inner}</svg>`;
+}
+
+function updateIdentity() {
+  const name = idInput.value;
+  const other = oneLetterOff(name);
+  const hash = identityHash(name);
+  const seeded = seededHoleyOptions(name, false);
+  const shape = shapes.find((entry) => entry.key === seeded.shape);
+  byId('id-hash').innerHTML = hashMarkup(hash);
+  byId('id-meta').textContent = `${seeded.shape} · seed ${seeded.seed}`;
+  byId('cmp-a-name').textContent = name || '""';
+  byId('cmp-b-name').textContent = other;
+  document.querySelectorAll('[data-name]').forEach((label) => { label.textContent = name; });
+  byId('how-hash-name').textContent = JSON.stringify(name);
+  byId('how-hash').innerHTML = hashMarkup(hash);
+  byId('how-outline').innerHTML = outlineSvg(shape);
+  const base = solid(seeded);
+  drawIdentity([
+    { ...base, idPrefix: 'id' },
+    { ...base, idPrefix: 'cmp-a' },
+    solid({ ...seededHoleyOptions(other, false), idPrefix: 'cmp-b' }),
+    { ...base, idPrefix: 'how-cut' },
+    ...deviceAvatars.map((avatar) => ({ ...base, idPrefix: `device-${avatar.dataset.device}` })),
+  ], ([main, a, b, cut, ...devices]) => {
+    paint(byId('id-avatar'), main.svg);
+    paint(byId('cmp-a'), a.svg);
+    paint(byId('cmp-b'), b.svg);
+    paint(byId('how-cut'), cut.svg);
+    devices.forEach((result, index) => paint(deviceAvatars[index], result.svg));
+    // Step 3 traces the real packed holes from the finished SVG.
+    const holes = (cut.svg.match(/<ellipse[^>]*\/>/g) || []).join('');
+    byId('how-pack').innerHTML = outlineSvg(shape, `<g fill="none" stroke="currentColor" stroke-width="4">${holes}</g>`);
+  });
+}
+idInput.addEventListener('input', updateIdentity);
+firstBench.then(updateIdentity);
+
+// Endless: the full catalog. Clicking a tile shuffles its layout.
+const shapeGrid = byId('shape-grid');
+shapes.forEach((shape, index) => {
+  const tile = document.createElement('button');
+  tile.type = 'button';
+  tile.className = 'shape-tile';
+  tile.setAttribute('aria-label', `${shape.name}, shuffle its holes`);
+  const avatar = avatarElement();
+  const label = document.createElement('span');
+  label.className = 'shape-tile-name';
+  label.textContent = shape.key;
+  tile.append(avatar, label);
+  shapeGrid.append(tile);
+  let seed = index + 3;
+  const options = () => ({ shape: shape.key, seed, animated: true, idPrefix: `shape-${shape.key}-${seed}` });
+  fill(avatar, options());
+  tile.addEventListener('click', () => {
+    seed += 1;
+    renderGallery(options()).then(({ svg }) => paint(avatar, svg));
+  });
+});
+
+// Crowd: people and bots, every face seeded from its name. Holes animate on hover.
+const crowd = ['ada', 'grace', 'linus', 'alan', 'radia', 'ken', 'barbara', 'bugbot', 'guido', 'hedy', 'tim', 'vint',
+  'margaret', 'dennis', 'planner', 'sophie', 'katherine', 'edsger', 'donald', 'frances', 'deploy-bot', 'john', 'leslie',
+  'yukihiro', 'rasmus', 'bjarne', 'explore', 'anders', 'brendan', 'lynn', 'mary', 'jean', 'main-agent', 'annie',
+  'mango', 'pixel-otter', 'reviewer', 'comet', 'fern', 'noodle', 'kite', 'scout'];
+for (const name of crowd) {
+  const item = document.createElement('li');
+  const avatar = avatarElement();
+  const label = document.createElement('span');
+  label.textContent = name;
+  item.append(avatar, label);
+  byId('crowd').append(item);
+  fill(avatar, { ...seededHoleyOptions(name, true), idPrefix: `crowd-${name}` });
+}
+
+// Closing: a few friendly faces that animate on hover.
+['ada', 'grace', 'linus', 'alan', 'radia'].forEach((name) => {
+  const a = avatarElement();
+  byId('closing-avatars').append(a);
+  fill(a, { ...seededHoleyOptions(name, true), idPrefix: `closing-${name}` });
+});
+
+// Playground: every control writes into one options object and redraws.
 const customAvatar = byId('custom-avatar');
-const platformAvatars = [...document.querySelectorAll('[data-platform]')];
 const holes = byId('custom-holes');
 const hexInput = byId('custom-color');
 const pickerArea = byId('picker-area');
 const pickerHue = byId('picker-hue');
-const defaults = () => ({ shape: 'disc', color: '#6337FF', holes: 5, seed: 2, doodle: true });
+const defaults = () => ({ shape: 'disc', color: '#6337FF', holes: 5, seed: 2, doodle: false });
 let customOptions = defaults();
 let customSvg = '';
 let hsv = { h: 0, s: 0, v: 0 };
-const drawCustom = latestOnly(renderHero);
-const drawPlatforms = latestOnly((options) => Promise.all(platformAvatars.map((avatar) =>
-  renderGallery({ ...options, doodle: false, animated: false, idPrefix: `platform-${avatar.dataset.platform}` }))));
+const drawCustom = latestOnly(renderIdentity);
 
 const jsLiteral = (value) => JSON.stringify(value);
 const camel = (key) => key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -397,9 +481,7 @@ HoleyShapeView(config = HoleyShapeConfig(
     byId(`code-${platform}`).innerHTML = highlight(code);
   }
   const isWeb = byId('live-tab-web').getAttribute('aria-selected') === 'true';
-  byId('code-note').textContent = isWeb ? 'Add <div id="avatar"></div> to your page.' : options.doodle ? 'Native SDKs use the solid style.' : 'Ready to use in your app.';
-  byId('copy-status').textContent = '';
-  byId('copy-code').textContent = 'Copy code';
+  byId('code-note').textContent = isWeb ? 'Add <div id="avatar"></div> to your page' : options.doodle ? 'Native SDKs draw the solid style' : '';
 }
 
 function updateCustom() {
@@ -408,12 +490,10 @@ function updateCustom() {
   document.querySelectorAll('[data-shape]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.shape === customOptions.shape)));
   document.querySelectorAll('[data-style]').forEach((button) => button.setAttribute('aria-pressed', String((button.dataset.style === 'doodle') === customOptions.doodle)));
   updateCode();
-  const options = { ...customOptions };
-  drawCustom({ ...options, idPrefix: 'custom' }, ({ svg }) => {
+  drawCustom({ ...customOptions, idPrefix: 'custom' }, ({ svg }) => {
     customSvg = svg;
     paint(customAvatar, svg);
   });
-  drawPlatforms(options, (results) => platformAvatars.forEach((avatar, index) => paint(avatar, results[index].svg)));
 }
 
 // Color picker: a saturation/brightness square, a hue bar and a hex field all
@@ -492,19 +572,15 @@ for (const shape of shapes) {
   button.dataset.shape = shape.key;
   button.title = shape.name;
   button.setAttribute('aria-label', shape.name);
-  const avatar = document.createElement('span');
-  avatar.className = 'choice-avatar';
+  const avatar = avatarElement('choice-avatar');
   avatar.setAttribute('aria-hidden', 'true');
-  const label = document.createElement('span');
-  label.className = 'choice-name';
-  label.textContent = shape.key.replaceAll('-', ' ');
-  button.append(avatar, label);
+  button.append(avatar);
   button.addEventListener('click', () => {
     customOptions.shape = shape.key;
     setHex(shape.color.toUpperCase());
   });
   byId('shape-choices').append(button);
-  fill(avatar, { shape: shape.key, seed: 2, idPrefix: `choice-${shape.key}` });
+  fill(avatar, solid({ shape: shape.key, seed: 2, shadowX: 10, shadowY: 12, idPrefix: `choice-${shape.key}` }));
 }
 
 holes.addEventListener('input', () => { customOptions.holes = Number(holes.value); updateCustom(); });
@@ -520,20 +596,27 @@ byId('reset-custom').addEventListener('click', () => {
   customOptions = defaults();
   setHex(customOptions.color);
 });
-for (const eventName of ['click', 'keydown']) {
-  document.querySelector('.integration [role="tablist"]').addEventListener(eventName, updateCode);
+document.querySelector('.play-code [role="tablist"]').addEventListener('click', updateCode);
+document.querySelector('.play-code [role="tablist"]').addEventListener('keydown', updateCode);
+
+// Copy buttons copy whichever code panel is showing next to them.
+for (const button of document.querySelectorAll('[data-copy-panel]')) {
+  button.addEventListener('click', async () => {
+    const panel = button.closest('.code-card, .play-code').querySelector('[role="tabpanel"]:not([hidden])');
+    try {
+      await navigator.clipboard.writeText(panel.textContent);
+      button.textContent = 'Copied';
+      byId('copy-status').textContent = 'Code copied.';
+    } catch {
+      byId('copy-status').textContent = 'Select the code and copy it with your keyboard.';
+    }
+    setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+  });
 }
-byId('copy-code').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(document.querySelector('.integration [role="tabpanel"]:not([hidden])').textContent);
-    byId('copy-code').textContent = 'Copied!';
-    byId('copy-status').textContent = 'Code copied.';
-  } catch { byId('copy-status').textContent = 'Select the code and copy it with your keyboard.'; }
-});
 byId('copy-svg').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(customSvg);
-    byId('export-status').textContent = 'SVG copied.';
+    byId('export-status').textContent = 'SVG copied to the clipboard.';
   } catch { byId('export-status').textContent = 'Use Download SVG to save your avatar.'; }
 });
 byId('download-svg').addEventListener('click', () => {
@@ -545,54 +628,7 @@ byId('download-svg').addEventListener('click', () => {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
-setHex(customOptions.color);
-
-// Shapes
-const shapeGrid = document.getElementById('shapes');
-shapes.forEach((shape, index) => {
-  fill(cell(shapeGrid, shape.key), { shape: shape.key, seed: index + 3, idPrefix: `shape-${shape.key}` });
-});
-
-// Holes
-const holeGrid = document.getElementById('holes');
-for (let count = 0; count <= 8; count++) {
-  fill(cell(holeGrid, String(count)), { shape: 'round-block', holes: count, seed: 3, idPrefix: `holes-${count}` });
-}
-
-// People
-const people = [
-  ['Ada Lovelace', 'ada'], ['Alan Turing', 'alan'], ['Grace Hopper', 'grace'],
-  ['Linus Torvalds', 'linus'], ['Margaret Hamilton', 'margaret'], ['Dennis Ritchie', 'dennis'],
-  ['Barbara Liskov', 'barbara'], ['Ken Thompson', 'ken'], ['Radia Perlman', 'radia'],
-];
-const peopleList = document.getElementById('people');
-for (const [name, handle] of people) {
-  const row = document.createElement('li');
-  const avatar = document.createElement('div');
-  avatar.className = 'avatar';
-  const text = document.createElement('div');
-  const strong = document.createElement('strong');
-  strong.textContent = name;
-  const span = document.createElement('span');
-  span.textContent = `@${handle}`;
-  text.append(strong, span);
-  row.append(avatar, text);
-  peopleList.append(row);
-  fill(avatar, { ...seededHoleyOptions(handle, false), idPrefix: `person-${handle}` });
-}
-
-// Styles
-const styleGrid = document.getElementById('styles');
-const styleBase = { shape: 'flower-star', holes: 5, seed: 2 };
-fill(cell(styleGrid, 'doodle'), { ...styleBase, idPrefix: 'style-doodle' });
-fill(cell(styleGrid, 'solid'), { ...styleBase, doodle: false, idPrefix: 'style-solid' });
-fill(cell(styleGrid, 'any color'), { ...styleBase, color: '#FFD43B', idPrefix: 'style-color' });
-
-// Sizes
-const sizeRow = document.getElementById('sizes');
-for (const size of [16, 24, 32, 48, 64, 96]) {
-  const avatar = cell(sizeRow, `${size}`, 'size');
-  avatar.style.width = avatar.style.height = `${size}px`;
-  fill(avatar, { shape: 'disc', holes: 4, seed: 5, idPrefix: `size-${size}` });
-}
-
+hsv = hexToHsv(customOptions.color);
+showColor(customOptions.color);
+updateCode();
+firstBench.then(updateCustom);

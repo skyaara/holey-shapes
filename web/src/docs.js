@@ -21,7 +21,7 @@ for (const shape of shapes) {
 const avatars = [...list.querySelectorAll('.avatar')];
 function next(index = 0) {
   if (index >= shapes.length) return;
-  avatars[index].innerHTML = createHoleySvg({ shape: shapes[index].key, seed: index + 3, doodle: true, animated: false, idPrefix: `doc-${shapes[index].key}` });
+  avatars[index].innerHTML = createHoleySvg({ shape: shapes[index].key, seed: index + 3, animated: false, idPrefix: `doc-${shapes[index].key}` });
   avatars[index].classList.add('ready');
   requestAnimationFrame(() => next(index + 1));
 }
