@@ -342,7 +342,7 @@ function oneLetterOff(name) {
 }
 
 function outlineSvg(shape, inner = '') {
-  return `<svg viewBox="-4 -4 428 428" aria-hidden="true"><path d="${shape.path}" fill="${shape.color}" fill-opacity="0.12" stroke="${shape.color}" stroke-width="5" stroke-linejoin="round" stroke-dasharray="16 12"/>${inner}</svg>`;
+  return `<svg viewBox="-4 -4 428 428" aria-hidden="true"><path d="${shape.path}" fill="none" stroke="${shape.color}" stroke-width="5" stroke-linejoin="round" stroke-dasharray="16 12"/>${inner}</svg>`;
 }
 
 function updateIdentity() {
@@ -430,7 +430,7 @@ const holes = byId('custom-holes');
 const hexInput = byId('custom-color');
 const pickerArea = byId('picker-area');
 const pickerHue = byId('picker-hue');
-const defaults = () => ({ shape: 'disc', color: '#6337FF', holes: 5, seed: 2, doodle: false });
+const defaults = () => ({ shape: 'prism', color: '#FF6A00', holes: 5, seed: 2, doodle: false });
 let customOptions = defaults();
 let customSvg = '';
 let hsv = { h: 0, s: 0, v: 0 };
