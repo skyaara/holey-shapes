@@ -15,6 +15,10 @@ Open an issue for a larger change so the public APIs and behavior can be discuss
 
 For Swift work, use `swift build` from the repository root and the verification command in the [README](README.md#generate-layouts-in-swift-and-jvm-processes). For Android and Kotlin work, run `./gradlew :core:verifyPacking test assembleRelease lintRelease` from `packages/android/`. Android builds require a local Android SDK; `local.properties` is ignored by Git.
 
+## Releases
+
+Maintainers release with one tag; see [RELEASING.md](RELEASING.md).
+
 ## Reporting security issues
 
 Please report vulnerabilities privately as described in [SECURITY.md](SECURITY.md), not in a public issue.

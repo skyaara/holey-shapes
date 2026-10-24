@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0
 
 - Add `identityHash(id)` in JavaScript, `HoleyShapeConfiguration.identityHash(_:)` in Swift, and `HoleyShapeConfig.identityHash(id)` in Kotlin. They return the same 16-digit hex hash that seeded avatars start from.
 - Add JavaScript `doodle` rendering and `idPrefix` for safely embedding SVG strings. Doodles use the llmgames-online style: a wobbly ink outline that keeps corners crisp, closed irregular hole rings and a short ink shadow.
@@ -9,6 +9,7 @@
 - Remove unused playground handlers and theme storage from the published JavaScript module.
 - Fall back to safe defaults for non-finite Swift and Compose rendering options.
 - Replace the website with a single page for using Holey Shapes as an avatar SDK. Avatars render in Web Workers.
+- Give every handle a share link at `/@handle`. Its X and Open Graph preview card shows that holey, rendered at the edge as a PNG.
 - Pack layouts about 6–7x faster on every platform by rejecting optimizer moves with cheap checks first. Output is unchanged.
 - Speed up JavaScript point-in-shape checks by about 25% with a flat, finer edge index. Output is unchanged.
 - Make Swift and Kotlin layouts identical to JavaScript by matching its rounding and disc and capsule outlines. Swift and Kotlin layouts change slightly; regenerate persisted native layouts if exact matches matter.

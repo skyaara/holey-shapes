@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -26,6 +27,8 @@ jobs:
         working-directory: web
       - run: npm test
         working-directory: packages/js
+      - run: npm test
+        working-directory: web
       - run: npm run build
         working-directory: web
       - run: npm pack --dry-run

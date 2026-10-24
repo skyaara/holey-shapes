@@ -18,7 +18,7 @@ In Xcode, add `https://github.com/skyaara/holey-shapes` as a package dependency,
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "2.0.0")
+    .package(url: "https://github.com/skyaara/holey-shapes.git", from: "2.1.0")
 ]
 ```
 
@@ -62,7 +62,7 @@ Then add the Compose SDK:
 
 ```kotlin
 dependencies {
-    implementation("com.github.skyaara:holey-shapes:v2.0.0")
+    implementation("com.github.skyaara:holey-shapes:v2.1.0")
 }
 ```
 
@@ -92,7 +92,7 @@ let holes = HoleyShapes.layout(shape: .prism, count: 6, seed: 2)
 // Each hole exposes cx, cy, rx, ry, and rotation.
 ```
 
-The Kotlin `core` module is a standalone JVM library with no Android or Compose dependencies. The Android SDK uses this same core. For a local JVM consumer, run `cd packages/android && ./gradlew :core:publishToMavenLocal`, enable `mavenLocal()`, and add `com.github.skyaara:holey-shapes-core:2.0.0`. For JitPack, the standalone module coordinate is `com.github.skyaara.holey-shapes:holey-shapes-core:v2.0.0`.
+The Kotlin `core` module is a standalone JVM library with no Android or Compose dependencies. The Android SDK uses this same core. For a local JVM consumer, run `cd packages/android && ./gradlew :core:publishToMavenLocal`, enable `mavenLocal()`, and add `com.github.skyaara:holey-shapes-core:2.1.0`. For JitPack, the standalone module coordinate is `com.github.skyaara.holey-shapes:holey-shapes-core:v2.1.0`.
 
 ```kotlin
 import com.aakashreddy.holeyshapes.core.HoleyPacking
@@ -157,6 +157,10 @@ const svg = createHoleySvg({
 ```
 
 The doodle renderer adds a gently irregular ink outline, hand-drawn cutouts, and a fixed ink shadow offset of `(9, 11)`. Its holes pulse subtly on hover. `shadowColor`, `shadowX`, `shadowY`, and `shadowSteps` apply only to the solid style. Doodle rendering is currently available in the JavaScript SDK; the native SDKs retain their solid renderer.
+
+## Share links
+
+Every handle has a page on the website: `https://holey-shapes.aakashreddy.com/@yourname`. Handles are case-insensitive and the `@` is optional. When the link is posted on X or another site, its preview card shows that holey, served as a PNG from `/og/@yourname.png`.
 
 ## Mount and update a shape
 
@@ -235,7 +239,7 @@ Run `npm test` in `packages/js` for the Node API and packing checks. Run `npm ci
 | `packages/js/` | Published JavaScript package, types, and Node tests |
 | `packages/swift/` | Swift sources and verification package |
 | `packages/android/` | Android and standalone Kotlin/JVM packages with Gradle wrapper |
-| `web/` | Website, public assets, and browser tests |
+| `web/` | Website, share-link Pages Functions, public assets, and browser tests |
 | `scripts/` | Cross-platform native sample verification |
 
 The root `Package.swift` keeps the existing Swift Package Manager Git URL working and points to `packages/swift/`. The root `jitpack.yml` builds `packages/android/`. Run `npm run dev` from `web` to work on the website. Native verification images in `artifacts/` are generated locally and are not tracked.

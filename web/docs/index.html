@@ -49,6 +49,7 @@
         <a href="#ids">Avatars from IDs</a>
         <a href="#options">Options</a>
         <a href="#api">API</a>
+        <a href="#share">Share links</a>
         <a href="#shapes">Shapes</a>
       </aside>
 
@@ -74,13 +75,13 @@ avatar.innerHTML = createHoleySvg({
   doodle: true,
   idPrefix: user.id,
 });</code></pre>
-<pre role="tabpanel" id="start-swift" aria-labelledby="start-tab-swift" hidden><code><span class="c">// .package(url: "https://github.com/skyaara/holey-shapes.git", from: "2.0.0")</span>
+<pre role="tabpanel" id="start-swift" aria-labelledby="start-tab-swift" hidden><code><span class="c">// .package(url: "https://github.com/skyaara/holey-shapes.git", from: "2.1.0")</span>
 import HoleyShapes
 
 HoleyShapeView(configuration: .seeded(user.id))
   .frame(width: 40, height: 40)</code></pre>
 <pre role="tabpanel" id="start-compose" aria-labelledby="start-tab-compose" hidden><code><span class="c">// repositories { maven("https://jitpack.io") }</span>
-<span class="c">// implementation("com.github.skyaara:holey-shapes:v2.0.0")</span>
+<span class="c">// implementation("com.github.skyaara:holey-shapes:v2.1.0")</span>
 HoleyShapeView(
   config = HoleyShapeConfig.seeded(user.id),
   modifier = Modifier.size(40.dp),
@@ -192,6 +193,11 @@ avatar.innerHTML = createHoleySvg({
           </dl>
         </section>
 
+        <section id="share" aria-labelledby="share-title">
+          <h2 id="share-title">Share links</h2>
+          <p>Every handle has its own page at <code>/@handle</code>, like <a href="/@ada">holey-shapes.aakashreddy.com/@ada</a>. Handles are case-insensitive and the <code>@</code> is optional. Post the link on X and the preview card shows that holey. The card image itself lives at <code>/og/@handle.png</code>.</p>
+        </section>
+
         <section id="shapes" aria-labelledby="shapes-title">
           <h2 id="shapes-title">Shapes</h2>
           <ul class="shape-list" id="shape-list"></ul>
@@ -208,7 +214,7 @@ avatar.innerHTML = createHoleySvg({
           <a href="https://www.npmjs.com/package/holey-shapes" target="_blank" rel="noopener">npm</a>
           <a href="https://github.com/skyaara/holey-shapes/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a>
         </nav>
-        <span class="footer-meta">MIT · v2.0.0</span>
+        <span class="footer-meta">MIT · v2.1.0</span>
       </div>
     </footer>
 

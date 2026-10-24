@@ -12,7 +12,7 @@ plugins {
 group = providers.gradleProperty("group").orElse("com.github.skyaara").get()
 version = providers.gradleProperty("version")
     .orElse(providers.environmentVariable("VERSION"))
-    .orElse("2.0.0")
+    .orElse("2.1.0")
     .get()
 
 extensions.configure<LibraryExtension> {

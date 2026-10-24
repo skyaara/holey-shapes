@@ -34,7 +34,7 @@
         "codeRepository": "https://github.com/skyaara/holey-shapes",
         "programmingLanguage": ["JavaScript", "Swift", "Kotlin"],
         "license": "https://opensource.org/licenses/MIT",
-        "version": "2.0.0"
+        "version": "2.1.0"
       }
     </script>
   </head>
@@ -58,11 +58,23 @@
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div class="wrap hero-head">
-          <h1 id="hero-title">Avatars with holes.</h1>
-          <p class="lede">Type a name. Get a holey.</p>
-          <div class="cta-row">
-            <button class="install" type="button" data-copy="npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state">copy</span></button>
-            <a class="button" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener">GitHub</a>
+          <div class="hero-default" id="hero-default">
+            <h1 id="hero-title">Avatars with holes.</h1>
+            <p class="lede">Type a name. Get a holey.</p>
+            <div class="cta-row">
+              <button class="install" type="button" data-copy="npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state">copy</span></button>
+              <a class="button" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener">GitHub</a>
+            </div>
+          </div>
+          <div class="me" id="me" hidden>
+            <div class="avatar me-avatar" id="me-avatar" role="img"></div>
+            <h1 class="me-name" id="me-name"></h1>
+            <code class="hash" id="me-hash"></code>
+            <div class="cta-row">
+              <a class="button button-x" id="me-share" href="https://x.com/intent/post" target="_blank" rel="noopener"><svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Post on X</a>
+              <button class="button" type="button" id="me-copy">Copy link</button>
+              <a class="button" href="#identity">Make yours</a>
+            </div>
           </div>
         </div>
 
@@ -106,7 +118,7 @@
           <h2 class="title" id="identity-title">A name. A hash. <em>A holey.</em></h2>
           <div class="flow">
             <div class="flow-step flow-name">
-              <label class="flow-label" for="id-input">name</label>
+              <label class="flow-label" for="id-input">your handle</label>
               <input id="id-input" class="flow-input" type="text" value="ada" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="64" />
             </div>
             <span class="flow-arrow" aria-hidden="true"></span>
@@ -119,6 +131,11 @@
               <div class="avatar" id="id-avatar" role="img" aria-label="Holey for the typed name"></div>
               <span class="flow-label" id="id-meta"></span>
             </div>
+          </div>
+          <div class="share-row" id="share-row">
+            <code class="share-url" id="share-url"></code>
+            <button type="button" class="button" id="copy-link">Copy link</button>
+            <a class="button button-x" id="share-x" href="https://x.com/intent/post" target="_blank" rel="noopener"><svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Post on X</a>
           </div>
           <div class="compare" aria-label="One letter off gives a different holey">
             <figure><div class="avatar" id="cmp-a"></div><figcaption><code id="cmp-a-name"></code></figcaption></figure>
@@ -263,7 +280,7 @@
           <a href="https://www.npmjs.com/package/holey-shapes" target="_blank" rel="noopener">npm</a>
           <a href="https://github.com/skyaara/holey-shapes/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a>
         </nav>
-        <span class="footer-meta">MIT · v2.0.0</span>
+        <span class="footer-meta">MIT · v2.1.0</span>
       </div>
     </footer>
 

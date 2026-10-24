@@ -1,5 +1,6 @@
 import { createHoleySvg, identityHash, seededHoleyOptions, shapes } from '../../packages/js/index.js';
 import './chrome.js';
+import { handleFromPath, normalizeHandle, shareOnX, shareUrl, validHandle } from './handle.js';
 import { highlight } from './highlight.js';
 
 // Packing a new layout can take tens of milliseconds, so SVGs are built in
@@ -346,7 +347,8 @@ function outlineSvg(shape, inner = '') {
 }
 
 function updateIdentity() {
-  const name = idInput.value;
+  const name = normalizeHandle(idInput.value);
+  updateShare(name);
   const other = oneLetterOff(name);
   const hash = identityHash(name);
   const seeded = seededHoleyOptions(name, false);
@@ -379,6 +381,49 @@ function updateIdentity() {
 }
 idInput.addEventListener('input', updateIdentity);
 firstBench.then(updateIdentity);
+
+// Share links: every handle has a page at /@handle whose preview card on X
+// shows that holey, so a posted link carries the avatar with it.
+async function copyLink(button, handle) {
+  try {
+    await navigator.clipboard.writeText(shareUrl(handle));
+    button.textContent = 'Copied';
+  } catch {
+    button.textContent = 'Press ⌘C';
+  }
+  setTimeout(() => { button.textContent = 'Copy link'; }, 1400);
+}
+let sharedHandle = '';
+function updateShare(handle) {
+  const ok = validHandle(handle);
+  sharedHandle = ok ? handle : '';
+  byId('share-row').classList.toggle('invalid', !ok);
+  byId('share-url').textContent = ok ? shareUrl(handle).replace(/^https:\/\//, '') : 'letters, numbers, _ . - (up to 32)';
+  byId('copy-link').disabled = !ok;
+  byId('share-x').href = ok ? shareOnX(handle, 'My holey, made from my handle.') : 'https://x.com/intent/post';
+}
+byId('copy-link').addEventListener('click', (event) => sharedHandle && copyLink(event.currentTarget, sharedHandle));
+byId('share-x').addEventListener('click', (event) => { if (!sharedHandle) event.preventDefault(); });
+
+// A visit to /@handle (or ?name=handle) leads with that person's holey.
+const visiting = handleFromPath(location.pathname) || (() => {
+  const handle = normalizeHandle(new URLSearchParams(location.search).get('name'));
+  return validHandle(handle) ? handle : '';
+})();
+if (visiting) {
+  idInput.value = visiting;
+  document.body.classList.add('personal');
+  document.title = `@${visiting}'s holey · holey-shapes`;
+  byId('hero-default').hidden = true;
+  byId('me').hidden = false;
+  byId('me-name').textContent = `@${visiting}`;
+  byId('me-hash').innerHTML = hashMarkup(identityHash(visiting));
+  byId('me-avatar').setAttribute('aria-label', `@${visiting}'s holey`);
+  byId('me-share').href = shareOnX(visiting, `@${visiting}'s holey.`);
+  byId('me-copy').addEventListener('click', (event) => copyLink(event.currentTarget, visiting));
+  renderIdentity({ ...seededHoleyOptions(visiting, true), idPrefix: 'me' }).then(({ svg }) => paint(byId('me-avatar'), svg));
+}
+updateShare(normalizeHandle(idInput.value));
 
 // Endless: the full catalog. Clicking a tile shuffles its layout.
 const shapeGrid = byId('shape-grid');

@@ -1,0 +1,43 @@
+name: Release
+
+# Push a tag like v2.1.0 after running scripts/set-version.mjs and updating
+# CHANGELOG.md. Swift Package Manager and JitPack build straight from the tag;
+# this workflow verifies it, publishes npm and creates the GitHub release.
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - run: npm install -g npm@latest
+      - name: Check the tag matches the package version
+        working-directory: packages/js
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      # Trusted publishing: npm exchanges this job's OIDC token, so no npm token
+      # is stored. Provenance is attached automatically.
+      - run: npm publish --access public
+        working-directory: packages/js
+      - name: Create the GitHub release from the changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v heading="## $version" '$0 == heading { found = 1; next } found && /^## / { exit } found' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+      - name: Ask JitPack to build the Android artifacts
+        continue-on-error: true
+        run: curl -fsS --max-time 600 "https://jitpack.io/com/github/skyaara/holey-shapes/${GITHUB_REF_NAME}/holey-shapes-${GITHUB_REF_NAME}.pom" > /dev/null
