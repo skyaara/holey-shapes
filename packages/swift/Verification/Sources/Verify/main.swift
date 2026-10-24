@@ -13,7 +13,35 @@ precondition(HoleyShapeConfiguration.identityHash("") == "cbf29ce484222325")
 precondition(HoleyShapeConfiguration.identityHash("relay-agent") == "0cc0c8aa3dbd893e")
 precondition(HoleyShapeConfiguration.identityHash("héllo 👋") == "7f88f6cbd1e4ef7d")
 let relay = HoleyShapeConfiguration.seeded("relay-agent")
-precondition(relay.shape == .triangle && relay.seed == 168_748)
+precondition(relay.shape == .prism && relay.holes == 3 && relay.seed == 922_032 && relay.turn == 90 && relay.mirrored)
+precondition(relay.faceColor.hex == "#EDD200" && relay.shadowColor.hex == "#6C5E00")
+precondition(HoleyShapeConfiguration(turn: 450).turn == 90 && HoleyShapeConfiguration(turn: -90).turn == 270)
+precondition(HoleyShapeConfiguration(turn: -45).turn == 0 && HoleyShapeConfiguration(turn: 45).turn == 90)
+
+// Seeded identities, every hue step and extrusion colors must match the vectors
+// written by the JavaScript package (scripts/seeding-vectors.mjs).
+let vectorsURL = URL(fileURLWithPath: #filePath)
+  .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+  .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("seeding-vectors.tsv")
+var checked = 0
+for line in try String(contentsOf: vectorsURL, encoding: .utf8).split(separator: "\n").dropFirst() {
+  let fields = line.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
+  switch fields[0] {
+  case "seed":
+    let config = HoleyShapeConfiguration.seeded(fields[1])
+    let actual = [config.shape.rawValue, String(config.holes), String(config.seed), String(config.turn),
+                  config.mirrored ? "1" : "0", config.faceColor.hex, config.shadowColor.hex]
+    precondition(actual == Array(fields[2...]), "seed \(fields[1]): \(actual) != \(Array(fields[2...]))")
+  case "hue":
+    let actual = HoleyColor(hue: Double(fields[1])! / 10).hex
+    precondition(actual == fields[2], "hue \(fields[1]): \(actual) != \(fields[2])")
+  default:
+    let actual = HoleyColor(hex: fields[1])!.extrusionColor.hex
+    precondition(actual == fields[2], "extrusion \(fields[1]): \(actual) != \(fields[2])")
+  }
+  checked += 1
+}
+print("Swift seeding matched JavaScript: \(checked) vectors")
 
 var layouts: [[String: Any]] = []
 for shape in HoleyShape.allCases {

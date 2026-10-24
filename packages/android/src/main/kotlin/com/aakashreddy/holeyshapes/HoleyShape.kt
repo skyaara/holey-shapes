@@ -3,9 +3,11 @@ package com.aakashreddy.holeyshapes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.aakashreddy.holeyshapes.core.HoleyColors
+import com.aakashreddy.holeyshapes.core.HoleyOrientation
+import com.aakashreddy.holeyshapes.core.HoleySeeding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 /** Every shape included in the original holey-shapes catalog. */
 enum class HoleyShape(
@@ -38,14 +40,19 @@ enum class HoleyShape(
     }
 }
 
-/** Rendering options for [HoleyShapeView]. The renderer clamps numeric values to supported ranges. */
+/**
+ * Rendering options for [HoleyShapeView]. The renderer clamps numeric values to supported ranges.
+ * [turn] rotates the face by quarter turns and [mirror] flips it; the extrusion keeps its direction.
+ */
 @Immutable
 data class HoleyShapeConfig(
     val shape: HoleyShape = HoleyShape.Disc,
     val faceColor: Color = shape.color,
-    val shadowColor: Color = faceColor.darkened(),
+    val shadowColor: Color = faceColor.extrusionColor(),
     val holes: Int = shape.defaultHoleCount,
     val seed: Int = 0,
+    val turn: Int = 0,
+    val mirror: Boolean = false,
     val animated: Boolean = true,
     val durationMillis: Int = 900,
     val shadowX: Float = 18f,
@@ -55,6 +62,7 @@ data class HoleyShapeConfig(
     internal fun normalized() = copy(
         holes = holes.coerceIn(0, shape.maximumHoleCount),
         seed = seed.coerceIn(-1_000_000, 1_000_000),
+        turn = HoleyOrientation.normalize(turn),
         // Zero falls back to the default, matching the web package's `Number(duration) || 900`.
         durationMillis = if (durationMillis == 0) 900 else durationMillis.coerceIn(100, 10_000),
         shadowX = if (shadowX.isFinite()) shadowX.coerceIn(-80f, 80f) else 18f,
@@ -71,24 +79,21 @@ data class HoleyShapeConfig(
          * FNV-1a 64 hash of the UTF-8 identity as 16 lowercase hex digits, matching
          * `identityHash` in the JavaScript package. [seeded] starts from it.
          */
-        fun identityHash(identity: String): String =
-            fnv1a64(identity).toULong().toString(16).padStart(16, '0')
+        fun identityHash(identity: String): String = HoleySeeding.identityHash(identity)
 
-        private fun fnv1a64(identity: String): Long {
-            var hash = -3_750_763_034_362_895_579L
-            identity.encodeToByteArray().forEach { byte ->
-                hash = hash xor (byte.toLong() and 0xFF)
-                hash *= 1_099_511_628_211L
-            }
-            return hash
-        }
-
-        /** Creates a stable shape and hole layout for an identity such as a user ID. */
+        /** Creates a stable holey for an identity such as a user ID, matching the web and Swift packages. */
         fun seeded(identity: String, animated: Boolean = true): HoleyShapeConfig {
-            val random = SplitMix64(fnv1a64(identity))
-            val shape = HoleyShape.entries[(random.next().toULong() % HoleyShape.entries.size.toUInt()).toInt()]
-            val seed = (random.next().toULong() % 1_000_001u).toInt()
-            return HoleyShapeConfig(shape = shape, seed = seed, animated = animated)
+            val seeded = HoleySeeding.seeded(identity)
+            return HoleyShapeConfig(
+                shape = HoleyShape.valueOf(seeded.shape.name),
+                faceColor = Color(0xFF000000 or seeded.faceColor.toLong()),
+                shadowColor = Color(0xFF000000 or seeded.shadowColor.toLong()),
+                holes = seeded.holes,
+                seed = seeded.seed,
+                turn = seeded.turn,
+                mirror = seeded.mirror,
+                animated = animated,
+            )
         }
     }
 }
@@ -107,26 +112,8 @@ object HoleyShapes {
 internal fun HoleyShapeConfig.defaultContentDescription(): String =
     "${shape.displayName} with ${holes.coerceIn(0, shape.maximumHoleCount)} holes"
 
-internal fun Color.darkened(factor: Float = 0.52f): Color {
+/** The extrusion color for this face, darkened in OKLCH like the web and Swift packages. */
+internal fun Color.extrusionColor(): Color {
     val argb = toArgb()
-    fun channel(shift: Int): Int {
-        val value = (argb shr shift) and 0xFF
-        return (value * factor).roundToInt().coerceIn(0, 255)
-    }
-    return Color(
-        red = channel(16),
-        green = channel(8),
-        blue = channel(0),
-        alpha = (argb ushr 24) and 0xFF,
-    )
-}
-
-private class SplitMix64(private var state: Long) {
-    fun next(): Long {
-        state += -7_046_029_254_386_353_131L
-        var value = state
-        value = (value xor (value ushr 30)) * -4_658_895_280_553_007_687L
-        value = (value xor (value ushr 27)) * -7_723_592_293_110_705_685L
-        return value xor (value ushr 31)
-    }
+    return Color(HoleyColors.extrusion(argb and 0xFFFFFF) or (argb and 0xFF000000.toInt()))
 }

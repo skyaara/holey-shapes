@@ -342,8 +342,12 @@ function oneLetterOff(name) {
   return characters.join('') + next;
 }
 
-function outlineSvg(shape, inner = '') {
-  return `<svg viewBox="-4 -4 428 428" aria-hidden="true"><path d="${shape.path}" fill="none" stroke="${shape.color}" stroke-width="5" stroke-linejoin="round" stroke-dasharray="16 12"/>${inner}</svg>`;
+// The same face transform the package applies, so the steps show the turned outline.
+const faceTransform = (turn, mirror) =>
+  [turn ? `rotate(${turn} 210 210)` : '', mirror ? 'translate(420 0) scale(-1 1)' : ''].filter(Boolean).join(' ');
+
+function outlineSvg(shape, { color, transform }, inner = '') {
+  return `<svg viewBox="-4 -4 428 428" aria-hidden="true"><g transform="${transform}"><path d="${shape.path}" fill="none" stroke="${color}" stroke-width="5" stroke-linejoin="round" stroke-dasharray="16 12"/>${inner}</g></svg>`;
 }
 
 function updateIdentity() {
@@ -360,7 +364,8 @@ function updateIdentity() {
   document.querySelectorAll('[data-name]').forEach((label) => { label.textContent = name; });
   byId('how-hash-name').textContent = JSON.stringify(name);
   byId('how-hash').innerHTML = hashMarkup(hash);
-  byId('how-outline').innerHTML = outlineSvg(shape);
+  const face = { color: seeded.color, transform: faceTransform(seeded.turn, seeded.mirror) };
+  byId('how-outline').innerHTML = outlineSvg(shape, face);
   const base = solid(seeded);
   drawIdentity([
     { ...base, idPrefix: 'id' },
@@ -376,7 +381,7 @@ function updateIdentity() {
     devices.forEach((result, index) => paint(deviceAvatars[index], result.svg));
     // Step 3 traces the real packed holes from the finished SVG.
     const holes = (cut.svg.match(/<ellipse[^>]*\/>/g) || []).join('');
-    byId('how-pack').innerHTML = outlineSvg(shape, `<g fill="none" stroke="currentColor" stroke-width="4">${holes}</g>`);
+    byId('how-pack').innerHTML = outlineSvg(shape, face, `<g fill="none" stroke="currentColor" stroke-width="4">${holes}</g>`);
   });
 }
 idInput.addEventListener('input', updateIdentity);
@@ -475,7 +480,7 @@ const holes = byId('custom-holes');
 const hexInput = byId('custom-color');
 const pickerArea = byId('picker-area');
 const pickerHue = byId('picker-hue');
-const defaults = () => ({ shape: 'prism', color: '#FF6A00', holes: 5, seed: 2, doodle: false });
+const defaults = () => ({ shape: 'prism', color: '#FF6A00', holes: 5, seed: 2, turn: 0, mirror: false, doodle: false });
 let customOptions = defaults();
 let customSvg = '';
 let hsv = { h: 0, s: 0, v: 0 };
@@ -502,17 +507,21 @@ function hexToHsv(hex) {
 function updateCode() {
   const options = customOptions;
   const shape = camel(options.shape);
+  // Turn and mirror only appear in the code once they are used.
+  const oriented = options.turn || options.mirror;
   const web = `import { mountHoleyShape } from 'holey-shapes';
 
 mountHoleyShape('#avatar', {
   shape: ${jsLiteral(options.shape)}, color: ${jsLiteral(options.color)},
-  holes: ${options.holes}, seed: ${options.seed}, doodle: ${options.doodle}
+  holes: ${options.holes}, seed: ${options.seed}, doodle: ${options.doodle}${oriented ? `,
+  turn: ${options.turn}, mirror: ${options.mirror}` : ''}
 });`;
   const swift = `import HoleyShapes
 
 HoleyShapeView(
   .${shape}, faceColor: HoleyColor(hex: ${jsLiteral(options.color)}),
-  holes: ${options.holes}, seed: ${options.seed}
+  holes: ${options.holes}, seed: ${options.seed}${oriented ? `,
+  turn: ${options.turn}, mirrored: ${options.mirror}` : ''}
 )`;
   const compose = `import com.aakashreddy.holeyshapes.*
 import androidx.compose.ui.graphics.Color
@@ -520,7 +529,8 @@ import androidx.compose.ui.graphics.Color
 HoleyShapeView(config = HoleyShapeConfig(
   shape = HoleyShape.${shape[0].toUpperCase() + shape.slice(1)},
   faceColor = Color(0xFF${options.color.slice(1)}),
-  holes = ${options.holes}, seed = ${options.seed}
+  holes = ${options.holes}, seed = ${options.seed}${oriented ? `,
+  turn = ${options.turn}, mirror = ${options.mirror}` : ''}
 ))`;
   for (const [platform, code] of Object.entries({ web, swift, compose })) {
     byId(`code-${platform}`).innerHTML = highlight(code);
@@ -534,6 +544,8 @@ function updateCustom() {
   holes.value = customOptions.holes;
   document.querySelectorAll('[data-shape]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.shape === customOptions.shape)));
   document.querySelectorAll('[data-style]').forEach((button) => button.setAttribute('aria-pressed', String((button.dataset.style === 'doodle') === customOptions.doodle)));
+  byId('turn-face').textContent = `Turn ${customOptions.turn}°`;
+  byId('mirror-face').setAttribute('aria-pressed', String(customOptions.mirror));
   updateCode();
   drawCustom({ ...customOptions, idPrefix: 'custom' }, ({ svg }) => {
     customSvg = svg;
@@ -633,6 +645,8 @@ byId('customize-panel').addEventListener('submit', (event) => event.preventDefau
 for (const button of document.querySelectorAll('[data-style]')) {
   button.addEventListener('click', () => { customOptions.doodle = button.dataset.style === 'doodle'; updateCustom(); });
 }
+byId('turn-face').addEventListener('click', () => { customOptions.turn = (customOptions.turn + 90) % 360; updateCustom(); });
+byId('mirror-face').addEventListener('click', () => { customOptions.mirror = !customOptions.mirror; updateCustom(); });
 byId('shuffle-layout').addEventListener('click', () => {
   customOptions.seed = customOptions.seed === 1000000 ? -1000000 : customOptions.seed + 1;
   updateCustom();

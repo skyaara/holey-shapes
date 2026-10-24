@@ -31,6 +31,7 @@ val verifyPacking by tasks.registering(JavaExec::class) {
     dependsOn(verification.classesTaskName)
     classpath = verification.runtimeClasspath
     mainClass.set("VerifyPackingKt")
+    systemProperty("seedingVectors", rootProject.layout.projectDirectory.file("../seeding-vectors.tsv").asFile.absolutePath)
     args(layout.buildDirectory.file("packing-layouts.json").get().asFile.absolutePath)
     if (project.hasProperty("shapeCatalog") && project.hasProperty("shapeOutput")) {
         args(project.property("shapeCatalog").toString(), project.property("shapeOutput").toString())

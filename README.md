@@ -134,13 +134,15 @@ document.querySelector('#shape').innerHTML = svg;
 
 ### Avatars from an ID
 
-`seededHoleyOptions(id)` picks a shape and seed from any string, so the same user always gets the same avatar. It starts from `identityHash(id)`, a 64-bit FNV-1a hash of the ID's UTF-8 bytes returned as 16 lowercase hex digits. Swift (`HoleyShapeConfiguration.identityHash`) and Kotlin (`HoleyShapeConfig.identityHash`) return the same hash, and their `seeded` functions return the same shape and seed.
+`seededHoleyOptions(id)` turns any string into a complete holey, so the same user always gets the same avatar. It starts from `identityHash(id)`, a 64-bit FNV-1a hash of the ID's UTF-8 bytes returned as 16 lowercase hex digits. The hash picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed, each from its own bits, so different IDs rarely share a holey: 100,000 IDs give 99,970 different ones. Swift (`HoleyShapeConfiguration.seeded`) and Kotlin (`HoleyShapeConfig.seeded`) return exactly the same values; [`packages/seeding-vectors.tsv`](packages/seeding-vectors.tsv) checks all three in CI.
 
 ```js
 import { createHoleySvg, identityHash, seededHoleyOptions } from 'holey-shapes';
 
 identityHash('relay-agent');       // '0cc0c8aa3dbd893e'
-seededHoleyOptions('relay-agent'); // { shape: 'triangle', seed: 168748, animated: true }
+seededHoleyOptions('relay-agent');
+// { shape: 'prism', holes: 3, seed: 922032, turn: 90, mirror: true,
+//   color: '#EDD200', shadowColor: '#6C5E00', animated: true }
 
 avatar.innerHTML = createHoleySvg({ ...seededHoleyOptions('relay-agent'), doodle: true });
 ```
@@ -201,14 +203,18 @@ The generated SVG scales to its container:
 | `doodle` | `false` | Hand-drawn outline and fixed ink shadow (JavaScript only) |
 | `idPrefix` | Unprefixed | Unique per inline SVG string; mounts manage this automatically |
 | `color` | Shape color | Six-digit hex face color |
-| `shadowColor` | Darker face color | Six-digit hex extrusion color |
+| `shadowColor` | Face color darkened in OKLCH | Six-digit hex extrusion color |
 | `holes` | Shape default | Hole count from 0 to 8 |
 | `seed` | `0` | Changes the hole layout |
+| `turn` | `0` | Quarter turns of the face: `0`, `90`, `180` or `270` |
+| `mirror` | `false` | Flips the face left to right |
 | `animated` | `true` | Includes the hover hole animation |
 | `duration` | `900` | Total hole-animation duration in milliseconds |
 | `shadowX` | `18` | Horizontal extrusion offset |
 | `shadowY` | `21` | Vertical extrusion offset |
 | `shadowSteps` | `12` | Number of solid extrusion slices |
+
+Turning and mirroring move the face only. The extrusion always falls down and to the right, and its default color is the face's hue at 56% of its OKLCH lightness, on every platform.
 
 Available shape keys: `disc`, `round-block`, `hex`, `capsule`, `prism`, `cross`, `triangle`, `diamond`, `sunburst`, `octagon`, `chevron`, `long-bar`, `flower-star`, and `bowtie`.
 

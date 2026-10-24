@@ -34,6 +34,7 @@
     "script.js",
     "geometry.js",
     "doodle.js",
+    "color.js",
     "index.d.ts",
     "README.md",
     "LICENSE"

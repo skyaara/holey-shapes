@@ -61,6 +61,8 @@ export function createDoodleSvg(shape, holes, options) {
   const path = outline(shape, seed);
   const paths = holes.map((hole, index) => cutout(hole, seed, index));
   const duration = Math.max(100, Math.min(10000, Number(options.duration) || 900));
+  // Turn and mirror the drawing, not its offset, so the ink shadow keeps its direction.
+  const turned = options.transform ? ` transform="${options.transform}"` : "";
   const hole = (d, index, stroke = false) => {
     const mark = `<path d="${d}" fill="${stroke ? "none" : "black"}"${stroke ? ` stroke="${ink}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"` : ""}/>`;
     return options.animated === false
@@ -70,5 +72,5 @@ export function createDoodleSvg(shape, holes, options) {
   const animation = options.animated === false
     ? ""
     : "<style>svg:hover .doodle-cutout{animation:doodle-cutout-pulse var(--doodle-duration) ease-in-out var(--doodle-delay) both}@keyframes doodle-cutout-pulse{0%,100%{transform:scale(1)}50%{transform:scale(.75)}}@media(prefers-reduced-motion:reduce){svg:hover .doodle-cutout{animation:none}}</style>";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${paths.map((d, i) => hole(d, i)).join("")}</mask></defs><g stroke="${ink}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"><g class="doodle-shadow-offset" transform="translate(9 11)"><g class="doodle-shadow"><path d="${path}" fill="${ink}" mask="url(#h)"/></g></g><g class="doodle-face"><path d="${path}" fill="${shape.color}" mask="url(#h)"/><path d="${path}" fill="none"/>${paths.map((d, i) => hole(d, i, true)).join("")}</g></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${paths.map((d, i) => hole(d, i)).join("")}</mask></defs><g stroke="${ink}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"><g class="doodle-shadow-offset" transform="translate(9 11)"><g class="doodle-shadow"${turned}><path d="${path}" fill="${ink}" mask="url(#h)"/></g></g><g class="doodle-face"${turned}><path d="${path}" fill="${shape.color}" mask="url(#h)"/><path d="${path}" fill="none"/>${paths.map((d, i) => hole(d, i, true)).join("")}</g></g></svg>`;
 }

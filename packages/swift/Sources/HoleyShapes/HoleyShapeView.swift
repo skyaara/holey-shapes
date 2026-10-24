@@ -22,6 +22,8 @@ public struct HoleyShapeView: View {
     shadowColor: HoleyColor? = nil,
     holes: Int? = nil,
     seed: Int = 0,
+    turn: Int = 0,
+    mirrored: Bool = false,
     animated: Bool = true,
     duration: Double = 0.9,
     shadowX: Double = 18,
@@ -35,6 +37,8 @@ public struct HoleyShapeView: View {
         shadowColor: shadowColor,
         holes: holes,
         seed: seed,
+        turn: turn,
+        mirrored: mirrored,
         animated: animated,
         duration: duration,
         shadowX: shadowX,
@@ -96,8 +100,11 @@ public struct HoleyShapeView: View {
       let side = min(size.width, size.height)
       let bounds = CGRect(x: (size.width - side) / 2, y: (size.height - side) / 2, width: side, height: side)
       context.clip(to: Path(bounds))
+      // The face is turned and mirrored; the extrusion steps below are offset in
+      // screen space, so depth points the same way for every holey.
       let path = ShapeGeometry.punched(
-        ShapeGeometry.bodyPath(for: configuration.shape), holes: holes, scales: scales, into: bounds)
+        ShapeGeometry.bodyPath(for: configuration.shape), holes: holes, scales: scales, into: bounds,
+        orientation: ShapeGeometry.orientation(turn: configuration.turn, mirrored: configuration.mirrored))
       let unit = side / 420
       let style = FillStyle(eoFill: true)
       let shadow = GraphicsContext.Shading.color(configuration.shadowColor.swiftUIColor)

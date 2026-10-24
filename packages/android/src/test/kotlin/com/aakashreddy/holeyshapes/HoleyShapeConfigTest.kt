@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.toArgb
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlin.math.floor
 
 class HoleyShapeConfigTest {
     @Test fun nonFiniteOffsetsUseDefaults() {
@@ -36,8 +35,21 @@ class HoleyShapeConfigTest {
         assertEquals("0cc0c8aa3dbd893e", HoleyShapeConfig.identityHash("relay-agent"))
         assertEquals("7f88f6cbd1e4ef7d", HoleyShapeConfig.identityHash("héllo 👋"))
         val seeded = HoleyShapeConfig.seeded("relay-agent")
-        assertEquals(HoleyShape.Triangle, seeded.shape)
-        assertEquals(168_748, seeded.seed)
+        assertEquals(HoleyShape.Prism, seeded.shape)
+        assertEquals(3, seeded.holes)
+        assertEquals(922_032, seeded.seed)
+        assertEquals(90, seeded.turn)
+        assertEquals(true, seeded.mirror)
+        assertEquals(Color(0xFFEDD200).toArgb(), seeded.faceColor.toArgb())
+        assertEquals(Color(0xFF6C5E00).toArgb(), seeded.shadowColor.toArgb())
+    }
+
+    @Test fun turnsNormalizeToQuarterTurns() {
+        assertEquals(90, HoleyShapeConfig(turn = 450).normalized().turn)
+        assertEquals(270, HoleyShapeConfig(turn = -90).normalized().turn)
+        assertEquals(0, HoleyShapeConfig(turn = -45).normalized().turn)
+        assertEquals(90, HoleyShapeConfig(turn = 45).normalized().turn)
+        assertEquals(false, HoleyShapeConfig().mirror)
     }
 
     @Test fun seedIsClamped() {
@@ -59,17 +71,12 @@ class HoleyShapeConfigTest {
         assertEquals("Perforated disc with 0 holes", HoleyShapeConfig(holes = -1).defaultContentDescription())
     }
 
-    @Test fun darkenedShadowMatchesWebFormula() {
-        assertEquals(Color(0xFF331D85).toArgb(), Color(0xFF6337FF).darkened().toArgb())
-        assertEquals(Color(0xFF856C00).toArgb(), Color(0xFFFFD000).darkened().toArgb())
-        assertEquals(Color(0xFF007060).toArgb(), Color(0xFF00D7B9).darkened().toArgb())
-        for (channel in 0..255) {
-            val expected = floor(channel * 0.52 + 0.5).toInt()
-            val argb = Color(red = channel, green = channel, blue = channel).darkened().toArgb()
-            assertEquals("channel $channel", expected, argb and 0xFF)
-            assertEquals(0xFF, argb ushr 24)
-        }
-        assertEquals(0x80, (Color(0x80FFFFFF).darkened().toArgb() ushr 24))
+    @Test fun extrusionColorMatchesWebPackage() {
+        assertEquals(Color(0xFF2A0081).toArgb(), Color(0xFF6337FF).extrusionColor().toArgb())
+        assertEquals(Color(0xFF745E00).toArgb(), Color(0xFFFFD000).extrusionColor().toArgb())
+        assertEquals(Color(0xFF006152).toArgb(), Color(0xFF00D7B9).extrusionColor().toArgb())
+        assertEquals(Color(0xFF2A0081).toArgb(), HoleyShapeConfig().shadowColor.toArgb())
+        assertEquals(0x80, (Color(0x80FFFFFF).extrusionColor().toArgb() ushr 24))
     }
 
     @Test fun holeTimingMatchesWebPackage() {

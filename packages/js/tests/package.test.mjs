@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { extrusionColor, hueColor } from '../color.js';
 import { createHoleySvg, identityHash, seededHoleyOptions, shapeNames } from '../script.js';
 
 assert.equal(shapeNames.length, 14);
@@ -38,7 +40,33 @@ assert.equal(seededHoleyOptions('relay-agent').animated, true);
 assert.equal(identityHash(''), 'cbf29ce484222325');
 assert.equal(identityHash('relay-agent'), '0cc0c8aa3dbd893e');
 assert.equal(identityHash('héllo 👋'), '7f88f6cbd1e4ef7d');
-assert.deepEqual(seededHoleyOptions('relay-agent'), { shape: 'triangle', seed: 168748, animated: true });
+assert.deepEqual(seededHoleyOptions('relay-agent'), {
+  shape: 'prism', holes: 3, seed: 922032, turn: 90, mirror: true, color: '#EDD200', shadowColor: '#6C5E00', animated: true,
+});
+
+// Every seeded identity, hue step and extrusion color must match the shared
+// vectors that the Swift and Kotlin checks also read.
+const vectors = readFileSync(new URL('../../seeding-vectors.tsv', import.meta.url), 'utf8').trimEnd().split('\n').slice(1);
+for (const line of vectors) {
+  const [kind, input, ...expected] = line.split('\t');
+  if (kind === 'seed') {
+    const o = seededHoleyOptions(input);
+    assert.deepEqual([o.shape, o.holes, o.seed, o.turn, o.mirror ? 1 : 0, o.color, o.shadowColor].map(String), expected, input);
+  } else if (kind === 'hue') assert.equal(hueColor(Number(input) / 10), expected[0], `hue ${input}`);
+  else assert.equal(extrusionColor(input), expected[0], `extrusion ${input}`);
+}
+
+// Turns and mirroring move the face, never the extrusion: the filter offsets
+// stay outside the transformed path, so depth always points down and right.
+const turned = createHoleySvg({ turn: 270, mirror: true, animated: false });
+assert.match(turned, /<g filter="url\(#e\)"><path transform="rotate\(270 210 210\) translate\(420 0\) scale\(-1 1\)" d="/);
+assert.match(turned, /<feOffset in="s" dx="18" dy="21"/);
+assert.equal(createHoleySvg({ turn: 450 }), createHoleySvg({ turn: 90 }));
+assert.equal(createHoleySvg({ turn: -90 }), createHoleySvg({ turn: 270 }));
+assert.equal(createHoleySvg({ turn: 'x', mirror: 'yes' }), createHoleySvg());
+assert.match(createHoleySvg(), /<g filter="url\(#e\)"><path d="/);
+const doodleTurned = createHoleySvg({ doodle: true, turn: 90, animated: false });
+assert.match(doodleTurned, /<g class="doodle-shadow-offset" transform="translate\(9 11\)"><g class="doodle-shadow" transform="rotate\(90 210 210\)">/);
 
 console.log('package API smoke test passed');
 

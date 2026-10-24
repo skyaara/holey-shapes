@@ -93,7 +93,7 @@ HoleyShapeView(
 
         <section id="ids" aria-labelledby="ids-title">
           <h2 id="ids-title">Avatars from IDs</h2>
-          <p><code>seededHoleyOptions(id)</code> turns any string, like a user ID, email or username, into a shape and a seed. The same string always gives the same avatar, and Swift and Kotlin give the same result as JavaScript.</p>
+          <p><code>seededHoleyOptions(id)</code> turns any string, like a user ID, email or username, into a complete holey: shape, hole count, quarter turn, mirroring, color and layout seed. The same string always gives the same avatar, and Swift and Kotlin give exactly the same result as JavaScript. 100,000 different IDs give 99,970 different holeys.</p>
           <p>Under the hood it hashes the ID with <code>identityHash(id)</code>, a 64-bit FNV-1a hash returned as 16 hex digits. You don't have to use it. The avatar depends only on <code>shape</code> and <code>seed</code>, so any hash of your own works:</p>
           <div class="code card">
 <pre><code>import { createHoleySvg, shapeNames } from 'holey-shapes';
@@ -105,7 +105,7 @@ avatar.innerHTML = createHoleySvg({
   seed: hash % 1_000_001,
 });</code></pre>
           </div>
-          <p class="fine">14 shapes, 2,000,001 seeds, 0 to 8 holes and any color.</p>
+          <p class="fine">Seeded holeys combine 14 shapes, 3 hole counts, 4 turns, 2 mirrors and 3,600 OKLCH hues with a layout seed.</p>
         </section>
 
         <section id="options" aria-labelledby="options-title">
@@ -129,8 +129,16 @@ avatar.innerHTML = createHoleySvg({
               <dd><p>Face color.</p><p class="alias">Swift <code>faceColor: HoleyColor(hex:)</code> · Compose <code>faceColor: Color</code></p></dd>
             </div>
             <div class="ref-item">
-              <dt><code>shadowColor</code><span class="type">#RRGGBB</span><span class="default">darker color</span></dt>
+              <dt><code>shadowColor</code><span class="type">#RRGGBB</span><span class="default">face darkened in OKLCH</span></dt>
               <dd><p>Color of the solid extrusion behind the face.</p></dd>
+            </div>
+            <div class="ref-item">
+              <dt><code>turn</code><span class="type">0 | 90 | 180 | 270</span><span class="default">0</span></dt>
+              <dd><p>Quarter turns of the face. Other values snap to the nearest quarter turn. The extrusion keeps its direction.</p><p class="alias">Swift <code>turn</code> · Compose <code>turn</code></p></dd>
+            </div>
+            <div class="ref-item">
+              <dt><code>mirror</code><span class="type">boolean</span><span class="default">false</span></dt>
+              <dd><p>Flips the face left to right. The extrusion keeps its direction.</p><p class="alias">Swift <code>mirrored</code> · Compose <code>mirror</code></p></dd>
             </div>
             <div class="ref-item">
               <dt><code>shadowX</code> <code>shadowY</code><span class="type">number</span><span class="default">18, 21</span></dt>
@@ -175,7 +183,7 @@ avatar.innerHTML = createHoleySvg({
               <dd><p>Renders into an element or selector. The mount has <code>update(options)</code>, <code>shuffle()</code> and <code>destroy()</code>.</p></dd>
             </div>
             <div class="ref-item">
-              <dt><code>seededHoleyOptions(id, animated?)</code><span class="type">→ { shape, seed, animated }</span></dt>
+              <dt><code>seededHoleyOptions(id, animated?)</code><span class="type">→ { shape, holes, seed, turn, mirror, color, shadowColor, animated }</span></dt>
               <dd><p>A stable shape and seed for any string.</p><p class="alias">Swift <code>HoleyShapeConfiguration.seeded(id)</code> · Kotlin <code>HoleyShapeConfig.seeded(id)</code></p></dd>
             </div>
             <div class="ref-item">

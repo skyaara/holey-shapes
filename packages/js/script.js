@@ -1,4 +1,5 @@
 import { compileShapePath } from './geometry.js';
+import { extrusionColor, hueColor } from './color.js';
 import { createDoodleSvg } from './doodle.js';
 
 const h = (cx, cy, rx, ry, rotate = 0) => ({ cx, cy, rx, ry, rotate });
@@ -94,11 +95,6 @@ function hoverHoleMarkup(hole, index, seed = 0, duration = 900) {
   return `<g class="hole-hover" style="--hole-duration:${pulseDuration}ms;--hole-delay:${delay}ms">${holeMarkup(hole)}</g>`;
 }
 
-function darkShadow(color, factor = 0.52) {
-  const value = color.replace('#', '');
-  const channels = [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16));
-  return `#${channels.map((channel) => Math.round(channel * factor).toString(16).padStart(2, '0')).join('')}`;
-}
 
 function circleFits(path, cx, cy, radius) {
   for (let step = 0; step < 32; step += 1) {
@@ -353,7 +349,7 @@ function extrusionFilterMarkup(shape, filterId, options = {}) {
   const shadowX = options.shadowX ?? SHADOW_X;
   const shadowY = options.shadowY ?? SHADOW_Y;
   const shadowSteps = options.shadowSteps ?? SHADOW_STEPS;
-  const shadowColor = options.shadowColor ?? darkShadow(shape.color);
+  const shadowColor = options.shadowColor ?? extrusionColor(shape.color);
   const offsets = Array.from({ length: shadowSteps }, (_, index) => {
     const step = index + 1;
     const ratio = step / shadowSteps;
@@ -363,6 +359,12 @@ function extrusionFilterMarkup(shape, filterId, options = {}) {
     `<feMergeNode in="s${shadowSteps - index}"/>`
   ).join('');
   return `<filter id="${filterId}" x="-20%" y="-20%" width="160%" height="160%" color-interpolation-filters="sRGB"><feFlood flood-color="${shadowColor}" result="p"/><feComposite in="p" in2="SourceGraphic" operator="in" result="s"/>${offsets}<feMerge>${merge}<feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+}
+
+// Quarter turns and mirroring apply to the face only. The extrusion is drawn
+// around it in unturned space, so every holey's depth points the same way.
+function orientation(turn = 0, mirror = false) {
+  return [turn ? `rotate(${turn} 210 210)` : '', mirror ? 'translate(420 0) scale(-1 1)' : ''].filter(Boolean).join(' ');
 }
 
 function exportSvg(shape, holes, options = {}) {
@@ -376,7 +378,7 @@ function exportSvg(shape, holes, options = {}) {
   const animation = options.animated === false
     ? ''
     : `<style>.hole-hover{transform-box:fill-box;transform-origin:center;will-change:transform}svg:hover .hole-hover{animation:hole-open-close var(--hole-duration) cubic-bezier(.33,0,.2,1) var(--hole-delay) both}@keyframes hole-open-close{0%,100%{transform:scale(1)}50%{transform:scale(.06)}}@media(prefers-reduced-motion:reduce){svg:hover .hole-hover{animation:none}}</style>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#e)"><path d="${shape.path}" fill="${shape.color}" mask="url(#h)"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="${shape.name} with ${holes.length} holes">${animation}<defs><mask id="h"><rect width="420" height="420" fill="white"/>${maskHoles}</mask>${filter}</defs><g filter="url(#e)"><path${options.transform ? ` transform="${options.transform}"` : ''} d="${shape.path}" fill="${shape.color}" mask="url(#h)"/></g></svg>`;
 }
 
 function normalizeColor(color, fallback) {
@@ -412,18 +414,30 @@ export function identityHash(identity) {
   return fnv1a64(identity).toString(16).padStart(16, '0');
 }
 
+// Seeding: the identity hash is mixed once, with a bijection so no bits are
+// lost, then read as mixed-radix digits, so every field gets its own bits.
+function mix64(value) {
+  value = BigInt.asUintN(64, (value ^ (value >> 30n)) * 0xBF58476D1CE4E5B9n);
+  value = BigInt.asUintN(64, (value ^ (value >> 27n)) * 0x94D049BB133111EBn);
+  return value ^ (value >> 31n);
+}
+
 export function seededHoleyOptions(identity, animated = true) {
-  let state = fnv1a64(identity);
-  const next = () => {
-    state = BigInt.asUintN(64, state + 0x9E3779B97F4A7C15n);
-    let value = state;
-    value = BigInt.asUintN(64, (value ^ (value >> 30n)) * 0xBF58476D1CE4E5B9n);
-    value = BigInt.asUintN(64, (value ^ (value >> 27n)) * 0x94D049BB133111EBn);
-    return BigInt.asUintN(64, value ^ (value >> 31n));
+  let rest = mix64(fnv1a64(identity));
+  const take = (count) => {
+    const digit = Number(rest % BigInt(count));
+    rest /= BigInt(count);
+    return digit;
   };
-  const shape = shapes[Number(next() % BigInt(shapes.length))];
-  const seed = Number(next() % 1000001n);
-  return { shape: shape.key, seed, animated };
+  const shape = shapes[take(shapes.length)];
+  const fewest = Math.max(2, shape.initial - 1);
+  const most = Math.min(MAX_HOLES, shape.holes.length, shape.initial + 1);
+  const holes = fewest + take(most - fewest + 1);
+  const turn = take(4) * 90;
+  const mirror = take(2) === 1;
+  const color = hueColor(take(3600) / 10);
+  const seed = take(1000001);
+  return { shape: shape.key, holes, seed, turn, mirror, color, shadowColor: extrusionColor(color), animated };
 }
 
 export function createHoleySvg(options = {}) {
@@ -435,10 +449,12 @@ export function createHoleySvg(options = {}) {
   const shadowX = numberInRange(options.shadowX, SHADOW_X, -80, 80);
   const shadowY = numberInRange(options.shadowY, SHADOW_Y, -80, 80);
   const shadowSteps = Math.round(numberInRange(options.shadowSteps, SHADOW_STEPS, 1, 32));
-  const shadowColor = normalizeColor(options.shadowColor, darkShadow(color));
+  const shadowColor = normalizeColor(options.shadowColor, extrusionColor(color));
+  const turn = ((Math.round(numberInRange(options.turn, 0, -36000, 36000) / 90) % 4) + 4) % 4 * 90;
   const holes = packedHoleLayout(shape, holeCount, seed);
   return scopeSvg(exportSvg(shape, holes, {
     doodle: options.doodle === true,
+    transform: orientation(turn, options.mirror === true),
     animated: options.animated,
     duration: options.duration,
     seed,

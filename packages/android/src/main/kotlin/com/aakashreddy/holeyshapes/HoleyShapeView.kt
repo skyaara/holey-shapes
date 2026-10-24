@@ -1,5 +1,6 @@
 package com.aakashreddy.holeyshapes
 
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import androidx.compose.animation.core.Animatable
@@ -27,6 +28,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.aakashreddy.holeyshapes.core.HoleyOrientation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,6 +85,12 @@ fun HoleyShapeView(
     val shadowPaint = remember(options.shadowColor) {
         Paint(Paint.ANTI_ALIAS_FLAG).apply { color = options.shadowColor.toArgb() }
     }
+    // Turn and mirror the face only. Each extrusion step is offset before this
+    // transform, so depth points the same way for every holey.
+    val orientation = remember(options.turn, options.mirror) {
+        val m = HoleyOrientation.matrix(options.turn, options.mirror).map(Double::toFloat)
+        Matrix().apply { setValues(floatArrayOf(m[0], m[2], m[4], m[1], m[3], m[5], 0f, 0f, 1f)) }
+    }
 
     suspend fun play() {
         holeProgress.snapTo(0f)
@@ -137,9 +145,11 @@ fun HoleyShapeView(
                 val ratio = step.toFloat() / options.shadowSteps
                 nativeCanvas.save()
                 nativeCanvas.translate(options.shadowX * ratio, options.shadowY * ratio)
+                nativeCanvas.concat(orientation)
                 nativeCanvas.drawPath(path, shadowPaint)
                 nativeCanvas.restore()
             }
+            nativeCanvas.concat(orientation)
             nativeCanvas.drawPath(path, facePaint)
             nativeCanvas.restore()
         }
@@ -194,9 +204,11 @@ fun HoleyShapeView(
     modifier: Modifier = Modifier,
     shape: HoleyShape = HoleyShape.Disc,
     faceColor: Color = shape.color,
-    shadowColor: Color = faceColor.darkened(),
+    shadowColor: Color = faceColor.extrusionColor(),
     holes: Int = shape.defaultHoleCount,
     seed: Int = 0,
+    turn: Int = 0,
+    mirror: Boolean = false,
     animated: Boolean = true,
     durationMillis: Int = 900,
     shadowX: Float = 18f,
@@ -211,6 +223,8 @@ fun HoleyShapeView(
             shadowColor = shadowColor,
             holes = holes,
             seed = seed,
+            turn = turn,
+            mirror = mirror,
             animated = animated,
             durationMillis = durationMillis,
             shadowX = shadowX,

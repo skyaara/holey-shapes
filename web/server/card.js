@@ -5,7 +5,7 @@ import geistBold from './fonts/geist-bold.bin';
 import geistMono from './fonts/geist-mono-semibold.bin';
 
 // Bump when the card design changes so cached PNGs are replaced.
-export const CARD_VERSION = 1;
+export const CARD_VERSION = 2;
 const WIDTH = 1200;
 const HEIGHT = 630;
 const CHIPS = ['#FFD000', '#00C9F2', '#FF4FA3', '#9BED00'];

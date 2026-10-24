@@ -329,7 +329,9 @@ pre .f { color: var(--code-f); }
 .shape-choices button[aria-pressed='true'] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .choice-avatar { width: 100%; aspect-ratio: 1; }
 .choice-avatar svg { width: 100%; height: 100%; overflow: visible; }
-.control-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; }
+.control-row { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 20px 28px; }
+.control-row > :first-child { grid-column: 1 / -1; }
+.chip-button[aria-pressed='true'] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
 .holes-row { display: flex; align-items: center; gap: 12px; height: 34px; }
 .holes-row input { flex: 1; min-width: 0; accent-color: var(--pink); }
 .segmented { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-soft); }

@@ -35,7 +35,24 @@ enum ShapeGeometry {
   /// The body with every hole added as a subpath, for an even-odd fill. Holes
   /// never overlap each other or the rim, so even-odd punches them out without
   /// offscreen layers or boolean path operations.
-  static func punched(_ body: CGPath, holes: [Hole], scales: [Double], into bounds: CGRect) -> Path {
+  /// Quarter turns about the 420-unit center, after an optional left-right
+  /// mirror, matching the web package's `rotate(turn 210 210) translate(420 0)
+  /// scale(-1 1)`. Exact matrices keep the turned outline crisp.
+  static func orientation(turn: Int, mirrored: Bool) -> CGAffineTransform {
+    let mirror = mirrored ? CGAffineTransform(a: -1, b: 0, c: 0, d: 1, tx: 420, ty: 0) : .identity
+    let rotation: CGAffineTransform
+    switch turn {
+    case 90: rotation = CGAffineTransform(a: 0, b: 1, c: -1, d: 0, tx: 420, ty: 0)
+    case 180: rotation = CGAffineTransform(a: -1, b: 0, c: 0, d: -1, tx: 420, ty: 420)
+    case 270: rotation = CGAffineTransform(a: 0, b: -1, c: 1, d: 0, tx: 0, ty: 420)
+    default: rotation = .identity
+    }
+    return mirror.concatenating(rotation)
+  }
+
+  static func punched(
+    _ body: CGPath, holes: [Hole], scales: [Double], into bounds: CGRect, orientation: CGAffineTransform = .identity
+  ) -> Path {
     let path = CGMutablePath()
     path.addPath(body)
     for (index, hole) in holes.enumerated() {
@@ -44,7 +61,8 @@ enum ShapeGeometry {
         to: path, cx: hole.cx, cy: hole.cy, rx: hole.rx * scale, ry: hole.ry * scale,
         rotation: hole.rotation)
     }
-    return scaled(path, into: bounds)
+    var transform = orientation
+    return scaled(path.copy(using: &transform) ?? path, into: bounds)
   }
 
   private static func makeBodyPath(for shape: HoleyShape) -> CGPath {

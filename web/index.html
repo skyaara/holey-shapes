@@ -169,9 +169,9 @@
 
       <section class="section" id="endless" aria-labelledby="endless-title">
         <div class="wrap">
-          <h2 class="title math" id="endless-title" aria-label="14 shapes times 9 hole counts times 2,000,001 seeds times 16.7 million colors"><span class="term">14<small>shapes</small></span><i>×</i><span class="term">9<small>hole counts</small></span><i>×</i><span class="term">2,000,001<small>seeds</small></span><i>×</i><span class="term">16.7M<small>colors</small></span></h2>
+          <h2 class="title math" id="endless-title" aria-label="14 shapes times 3 hole counts times 4 turns times 2 mirrors times 3,600 hues"><span class="term">14<small>shapes</small></span><i>×</i><span class="term">3<small>hole counts</small></span><i>×</i><span class="term">4<small>turns</small></span><i>×</i><span class="term">2<small>mirrors</small></span><i>×</i><span class="term">3,600<small>hues</small></span></h2>
           <div class="shape-grid" id="shape-grid"></div>
-          <p class="big-number"><i>=</i> <strong>4,227,860,545,929,216</strong> <span>holeys</span></p>
+          <p class="big-number"><strong>99,970</strong> <span>different holeys from 100,000 names</span></p>
         </div>
       </section>
 
@@ -224,6 +224,10 @@
                 <fieldset class="control">
                   <legend>Holes <output id="holes-value">5</output></legend>
                   <div class="holes-row"><input id="custom-holes" type="range" min="0" max="8" value="5" aria-label="Number of holes" /><button class="chip-button" id="shuffle-layout" type="button">Shuffle</button></div>
+                </fieldset>
+                <fieldset class="control">
+                  <legend>Face</legend>
+                  <div class="holes-row"><button class="chip-button" id="turn-face" type="button">Turn 0°</button><button class="chip-button" id="mirror-face" type="button" aria-pressed="false">Mirror</button></div>
                 </fieldset>
                 <fieldset class="control">
                   <legend>Style</legend>
