@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Add `identityHash(id)` in JavaScript, `HoleyShapeConfiguration.identityHash(_:)` in Swift, and `HoleyShapeConfig.identityHash(id)` in Kotlin. They return the same 16-digit hex hash that seeded avatars start from.
-- Add JavaScript `doodle` rendering and `idPrefix` for safely embedding SVG strings. Doodles use smooth hand-drawn outlines with loose, overshooting pen ends and a small highlight.
+- Add JavaScript `doodle` rendering and `idPrefix` for safely embedding SVG strings. Doodles use the llmgames-online style: a wobbly ink outline that keeps corners crisp, closed irregular hole rings and a short ink shadow.
 - Isolate mounted SVG definitions, preserve sibling content, and make destroyed mounts inert.
 - Wrap JavaScript shuffle seeds at the supported limit.
 - Remove unused playground handlers and theme storage from the published JavaScript module.
