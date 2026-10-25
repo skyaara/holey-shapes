@@ -1,5 +1,10 @@
 # holey-shapes
 
+[![npm](https://img.shields.io/npm/v/holey-shapes?color=FF6A00)](https://www.npmjs.com/package/holey-shapes)
+[![CI](https://github.com/skyaara/holey-shapes/actions/workflows/ci.yml/badge.svg)](https://github.com/skyaara/holey-shapes/actions/workflows/ci.yml)
+[![gzip size](https://img.shields.io/bundlejs/size/holey-shapes)](https://bundlejs.com/?q=holey-shapes)
+[![license: MIT](https://img.shields.io/badge/license-MIT-2878FF)](LICENSE)
+
 Solid, perforated shapes for the web, SwiftUI, and Jetpack Compose, with a connected extrusion and built-in hole animation. Hovering closes and reopens the holes in a seeded random order while the body stays still.
 
 [website](https://holey-shapes.aakashreddy.com) · [npm package](https://www.npmjs.com/package/holey-shapes) · [source](https://github.com/skyaara/holey-shapes)
@@ -250,7 +255,7 @@ Run `npm test` in `packages/js` for the Node API and packing checks. Run `npm ci
 
 The root `Package.swift` keeps the existing Swift Package Manager Git URL working and points to `packages/swift/`. The root `jitpack.yml` builds `packages/android/`. Run `npm run dev` from `web` to work on the website. Native verification images in `artifacts/` are generated locally and are not tracked.
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and the package boundaries. The project is licensed under [MIT](LICENSE).
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and the package boundaries, and the [code of conduct](CODE_OF_CONDUCT.md). Releases are described in [RELEASING.md](RELEASING.md). The project is licensed under [MIT](LICENSE).
 
 ## Extending the renderer
 

@@ -1,6 +1,6 @@
 # Contributing to Holey Shapes
 
-Thanks for helping improve the project. Bug reports, documentation fixes, examples, and code changes are welcome.
+Thanks for helping improve the project. Bug reports, documentation fixes, examples, and code changes are welcome. Everyone taking part agrees to the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Before changing code
 

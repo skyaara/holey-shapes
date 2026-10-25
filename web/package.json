@@ -9,7 +9,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "node tests/handle.test.mjs",
     "pages:dev": "npm run build && wrangler pages dev",
-    "deploy": "npm run build && wrangler pages deploy"
+    "deploy": "npm run build && wrangler pages deploy",
+    "og": "node scripts/og-image.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"
