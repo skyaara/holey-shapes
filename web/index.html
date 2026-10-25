@@ -58,23 +58,10 @@
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div class="wrap hero-head">
-          <div class="hero-default" id="hero-default">
-            <h1 id="hero-title">Avatars with holes.</h1>
-            <p class="lede">Type a name. Get a holey.</p>
-            <div class="cta-row">
-              <button class="install" type="button" data-copy="npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state">copy</span></button>
-              <a class="button" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener">GitHub</a>
-            </div>
-          </div>
-          <div class="me" id="me" hidden>
-            <div class="avatar me-avatar" id="me-avatar" role="img"></div>
-            <h1 class="me-name" id="me-name"></h1>
-            <code class="hash" id="me-hash"></code>
-            <div class="cta-row">
-              <a class="button button-x" id="me-share" href="https://x.com/intent/post" target="_blank" rel="noopener"><svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Post on X</a>
-              <button class="button" type="button" id="me-copy">Copy link</button>
-              <a class="button" href="#identity">Make yours</a>
-            </div>
+          <h1 id="hero-title">Avatars with holes.</h1>
+          <div class="cta-row">
+            <button class="install" type="button" data-copy="npm i holey-shapes" aria-label="Copy npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state" aria-hidden="true"><svg class="icon i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><svg class="icon i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
+            <a class="button" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</a>
           </div>
         </div>
 
@@ -133,8 +120,8 @@
             </div>
           </div>
           <div class="share-row" id="share-row">
-            <code class="share-url" id="share-url"></code>
-            <button type="button" class="button" id="copy-link">Copy link</button>
+            <a class="share-url" id="share-url" href="/@ada"></a>
+            <button type="button" class="button" id="copy-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg><span>Copy link</span></button>
             <a class="button button-x" id="share-x" href="https://x.com/intent/post" target="_blank" rel="noopener"><svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Post on X</a>
           </div>
           <div class="compare" aria-label="One letter off gives a different holey">
@@ -171,7 +158,6 @@
         <div class="wrap">
           <h2 class="title math" id="endless-title" aria-label="14 shapes times 3 hole counts times 4 turns times 2 mirrors times 3,600 hues"><span class="term">14<small>shapes</small></span><i>×</i><span class="term">3<small>hole counts</small></span><i>×</i><span class="term">4<small>turns</small></span><i>×</i><span class="term">2<small>mirrors</small></span><i>×</i><span class="term">3,600<small>hues</small></span></h2>
           <div class="shape-grid" id="shape-grid"></div>
-          <p class="big-number"><strong>99,970</strong> <span>different holeys from 100,000 names</span></p>
         </div>
       </section>
 
@@ -196,6 +182,24 @@
               <p><span>4</span>cut + extrude</p>
             </li>
           </ol>
+        </div>
+      </section>
+
+      <section class="section" id="svg" aria-labelledby="svg-title">
+        <div class="wrap">
+          <h2 class="title" id="svg-title">Your hash. <em>Our SVG.</em></h2>
+          <p class="section-note">Skip our seeding if you like. Any integer hash can pick the shape and seed, and you get back a plain SVG string.</p>
+          <div class="byo">
+            <div class="code-card card">
+              <div class="code-toolbar"><span class="code-file">avatar.js</span><button type="button" class="ghost-button" data-copy-panel="byo">Copy</button></div>
+              <pre role="tabpanel" id="byo-code" tabindex="0"><code id="byo-code-text"></code></pre>
+            </div>
+            <div class="card byo-out">
+              <div class="byo-art"><div class="avatar" id="byo-avatar" role="img" aria-label="SVG made from a custom hash"></div></div>
+              <code class="byo-string" id="byo-string"></code>
+              <ul class="byo-facts"><li>no DOM</li><li>Node and SSR</li><li>edge workers</li><li id="byo-size"></li></ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -267,8 +271,8 @@
             <div class="closing-avatars" id="closing-avatars" aria-hidden="true"></div>
             <h2 id="closing-title">Free. Open source. <em>Any shape.</em></h2>
             <div class="cta-row">
-              <button class="install install-dark" type="button" data-copy="npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state">copy</span></button>
-              <a class="button button-sun" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener">Star on GitHub</a>
+              <button class="install install-dark" type="button" data-copy="npm i holey-shapes" aria-label="Copy npm i holey-shapes"><span class="prompt" aria-hidden="true">$</span><code>npm i holey-shapes</code><span class="copy-state" aria-hidden="true"><svg class="icon i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><svg class="icon i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
+              <a class="button button-sun" href="https://github.com/skyaara/holey-shapes" target="_blank" rel="noopener"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>Star on GitHub</a>
             </div>
           </div>
         </div>

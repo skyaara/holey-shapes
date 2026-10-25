@@ -139,7 +139,7 @@ document.querySelector('#shape').innerHTML = svg;
 
 ### Avatars from an ID
 
-`seededHoleyOptions(id)` turns any string into a complete holey, so the same user always gets the same avatar. It starts from `identityHash(id)`, a 64-bit FNV-1a hash of the ID's UTF-8 bytes returned as 16 lowercase hex digits. The hash picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed, each from its own bits, so different IDs rarely share a holey: 100,000 IDs give 99,970 different ones. Swift (`HoleyShapeConfiguration.seeded`) and Kotlin (`HoleyShapeConfig.seeded`) return exactly the same values; [`packages/seeding-vectors.tsv`](packages/seeding-vectors.tsv) checks all three in CI.
+`seededHoleyOptions(id)` turns any string into a complete holey, so the same user always gets the same avatar. It starts from `identityHash(id)`, a 64-bit FNV-1a hash of the ID's UTF-8 bytes returned as 16 lowercase hex digits. The hash picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed, each from its own bits, so different IDs rarely share a holey. Swift (`HoleyShapeConfiguration.seeded`) and Kotlin (`HoleyShapeConfig.seeded`) return exactly the same values; [`packages/seeding-vectors.tsv`](packages/seeding-vectors.tsv) checks all three in CI.
 
 ```js
 import { createHoleySvg, identityHash, seededHoleyOptions } from 'holey-shapes';

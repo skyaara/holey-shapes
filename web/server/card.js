@@ -5,7 +5,7 @@ import geistMedium from './fonts/geist-medium.bin';
 import geistMono from './fonts/geist-mono-semibold.bin';
 
 // Bump when the card design changes so cached PNGs are replaced.
-export const CARD_VERSION = 3;
+export const CARD_VERSION = 4;
 const WIDTH = 1200;
 const HEIGHT = 630;
 const CHIPS = ['#FFD000', '#00C9F2', '#FF4FA3', '#9BED00'];
@@ -34,7 +34,7 @@ ${holey}
 ${chips}
 <text x="600" y="430" font-family="Geist Mono" font-size="24" fill="#8F8F8F">${seeded.shape} · seed ${seeded.seed}</text>
 <text x="600" y="548" font-family="Geist" font-weight="500" font-size="30" fill="#F5F2EA">holey-shapes</text>
-<text x="822" y="548" font-family="Geist Mono" font-size="22" fill="#8F8F8F">type a name, get a holey</text>
+<text x="822" y="548" font-family="Geist Mono" font-size="22" fill="#8F8F8F">holey-shapes.aakashreddy.com</text>
 </svg>`;
 }
 

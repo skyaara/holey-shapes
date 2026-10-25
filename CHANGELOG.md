@@ -2,7 +2,7 @@
 
 ## 2.1.0
 
-- Seed far more distinct holeys from an identity. The hash now picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed from separate bits: 100,000 names give 99,970 different holeys instead of 49,512. Swift and Kotlin match JavaScript exactly, checked against shared vectors in CI.
+- Seed far more distinct holeys from an identity. The hash now picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed from separate bits, so different names rarely share a holey. Swift and Kotlin match JavaScript exactly, checked against shared vectors in CI.
 - Add `turn` and `mirror` options on every platform (Swift `mirrored`). They move the face only, so the extrusion always falls down and to the right.
 - Darken default extrusions in OKLCH on every platform: the face hue at 56% of its lightness and 70% of its chroma, replacing the per-channel RGB multiply.
 

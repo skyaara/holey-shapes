@@ -1,6 +1,6 @@
 import { handleFromPath } from '../src/handle.js';
 
-// /@handle serves the home page with link-preview tags for that handle, so a
+// /@handle serves the handle page with link-preview tags for that handle, so a
 // post on X shows the person's holey. The page itself fills in the rest.
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -8,9 +8,9 @@ export async function onRequestGet(context) {
   if (!handle) return context.next();
   if (url.pathname !== `/@${handle}`) return Response.redirect(`${url.origin}/@${handle}${url.search}`, 301);
 
-  const page = await context.env.ASSETS.fetch(new URL('/', url));
+  const page = await context.env.ASSETS.fetch(new URL('/handle/', url));
   const title = `@${handle}'s holey`;
-  const description = `The holey made from @${handle}. Type a name, get a holey.`;
+  const description = `The holey made from @${handle}, with holey-shapes.`;
   const image = `${url.origin}/og/@${handle}.png`;
   const content = (value) => ({ element: (element) => element.setAttribute('content', value) });
   const response = new HTMLRewriter()

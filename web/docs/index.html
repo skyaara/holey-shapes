@@ -93,7 +93,7 @@ HoleyShapeView(
 
         <section id="ids" aria-labelledby="ids-title">
           <h2 id="ids-title">Avatars from IDs</h2>
-          <p><code>seededHoleyOptions(id)</code> turns any string, like a user ID, email or username, into a complete holey: shape, hole count, quarter turn, mirroring, color and layout seed. The same string always gives the same avatar, and Swift and Kotlin give exactly the same result as JavaScript. 100,000 different IDs give 99,970 different holeys.</p>
+          <p><code>seededHoleyOptions(id)</code> turns any string, like a user ID, email or username, into a complete holey: shape, hole count, quarter turn, mirroring, color and layout seed. The same string always gives the same avatar, and Swift and Kotlin give exactly the same result as JavaScript.</p>
           <p>Under the hood it hashes the ID with <code>identityHash(id)</code>, a 64-bit FNV-1a hash returned as 16 hex digits. You don't have to use it. The avatar depends only on <code>shape</code> and <code>seed</code>, so any hash of your own works:</p>
           <div class="code card">
 <pre><code>import { createHoleySvg, shapeNames } from 'holey-shapes';

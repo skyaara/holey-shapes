@@ -20,7 +20,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
 <rect width="1200" height="630" fill="#F4EFE6"/>
 <text x="80" y="250" font-family="Geist" font-weight="500" font-size="76" letter-spacing="-2" fill="#161513">Avatars</text>
 <text x="80" y="335" font-family="Geist" font-weight="500" font-size="76" letter-spacing="-2" fill="#161513">with holes.</text>
-<text x="82" y="400" font-family="Geist" font-weight="500" font-size="30" fill="#77716A">Type a name. Get a holey.</text>
 <text x="82" y="540" font-family="Geist Mono" font-size="24" fill="#161513">npm i holey-shapes</text>
 <text x="82" y="575" font-family="Geist Mono" font-size="20" fill="#77716A">holey-shapes.aakashreddy.com</text>
 ${holeys}

@@ -24,15 +24,15 @@ showCount('github-stars', 'https://api.github.com/repos/skyaara/holey-shapes', (
 showCount('npm-downloads', 'https://api.npmjs.org/downloads/point/last-month/holey-shapes', (data) => data.downloads);
 
 document.querySelectorAll('[data-copy]').forEach((button) => {
-  const state = button.querySelector('.copy-state');
   button.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
-      state.textContent = 'copied';
+      button.dataset.copied = '';
+      button.title = 'Copied';
     } catch {
-      state.textContent = 'press ⌘C';
+      button.title = 'Select the text and copy it with your keyboard';
     }
-    setTimeout(() => { state.textContent = 'copy'; }, 1400);
+    setTimeout(() => { delete button.dataset.copied; button.removeAttribute('title'); }, 1400);
   });
 });
 
