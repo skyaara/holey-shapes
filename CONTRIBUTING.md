@@ -12,7 +12,7 @@ Open an issue for a larger change so the public APIs and behavior can be discuss
 - Run `npm test` and `npm pack --dry-run` in `packages/js/`; the pack command shows exactly what the JavaScript package would include.
 - If you change seeding or color, run `node scripts/seeding-vectors.mjs` and commit the updated `packages/seeding-vectors.tsv`. The Swift and Kotlin checks read the same file, so all three platforms must agree.
 
-For Swift work, use `swift build` from the repository root and the verification command in the [README](README.md#generate-layouts-in-swift-and-jvm-processes). For Android and Kotlin work, run `./gradlew :core:verifyPacking test assembleRelease lintRelease` from `packages/android/`. Android builds require a local Android SDK; `local.properties` is ignored by Git.
+For Swift work, use `swift build` from the repository root and the verification command in the [reference](docs/REFERENCE.md#generate-layouts-in-swift-and-jvm-processes). For Android and Kotlin work, run `./gradlew :core:verifyPacking test assembleRelease lintRelease` from `packages/android/`. Android builds require a local Android SDK; `local.properties` is ignored by Git.
 
 ## Pull requests
 

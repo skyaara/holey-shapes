@@ -1,6 +1,8 @@
 # holey-shapes
 
-Perforated SVG shapes with solid extrusion and animated holes. The package runs in Node and browsers without runtime dependencies.
+Avatars with holes. Turn any name into a colorful, one-of-a-kind SVG shape. The same name always gives the same shape. It runs in Node and browsers with no dependencies.
+
+<img src="https://raw.githubusercontent.com/skyaara/holey-shapes/main/.github/media/names.gif" width="720" alt="Ten names, each turned into its own holey shape">
 
 ```sh
 npm install holey-shapes
@@ -27,6 +29,6 @@ avatar.innerHTML = createHoleySvg({ ...seededHoleyOptions('relay-agent'), idPref
 
 Pass a unique `idPrefix` to `createHoleySvg()` when adding multiple SVG strings to one document. `mountHoleyShape()` creates isolated IDs automatically.
 
-For the option reference, shape catalog, native packages, and contribution guide, see the [project README](https://github.com/skyaara/holey-shapes#readme). Source for this package is in [`packages/js`](https://github.com/skyaara/holey-shapes/tree/main/packages/js).
+For the option reference, shape catalog, native packages, and contribution guide, see the [reference](https://github.com/skyaara/holey-shapes/blob/main/docs/REFERENCE.md) and the [project README](https://github.com/skyaara/holey-shapes#readme). Source for this package is in [`packages/js`](https://github.com/skyaara/holey-shapes/tree/main/packages/js).
 
 MIT licensed.
