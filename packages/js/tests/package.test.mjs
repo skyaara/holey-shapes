@@ -82,6 +82,13 @@ for (const {key} of shapeNames) {
   assert.doesNotMatch(doodle, /id="h"|url\(#h\)/);
 }
 assert.doesNotMatch(createHoleySvg({doodle:true, animated:false}), /<style>|doodle-cutout"/);
+// Doodle shadows are ink unless a shadow color is passed, then a solid silhouette in it.
+const inkShadow = createHoleySvg({ doodle: true, animated: false, color: '#00C899' });
+assert.match(inkShadow, /class="doodle-shadow"><path d="[^"]+" fill="#25262A" stroke="#25262A"/);
+const coloredShadow = createHoleySvg({ doodle: true, animated: false, color: '#00C899', shadowColor: '#005A43' });
+assert.match(coloredShadow, /class="doodle-shadow"><path d="[^"]+" fill="#005A43" stroke="#005A43"/);
+const seededDoodle = createHoleySvg({ ...seededHoleyOptions('ada', false), doodle: true });
+assert.match(seededDoodle, new RegExp(`class="doodle-shadow"[^>]*><path d="[^"]+" fill="${seededHoleyOptions('ada').shadowColor}"`));
 const hostile = createHoleySvg({color:'" onload="alert(1)', shadowColor:'<script>', idPrefix:'"><script>alert(1)</script>'});
 assert.doesNotMatch(hostile, /<script|onload=/);
 assert.notEqual(createHoleySvg({idPrefix:'a-b'}), createHoleySvg({idPrefix:'a_b'}));

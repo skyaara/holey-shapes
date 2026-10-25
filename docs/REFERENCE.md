@@ -156,7 +156,7 @@ const svg = createHoleySvg({
 });
 ```
 
-The doodle renderer adds a gently irregular ink outline, hand-drawn cutouts, and a fixed ink shadow offset of `(9, 11)`. Its holes pulse subtly on hover. `shadowColor`, `shadowX`, `shadowY`, and `shadowSteps` apply only to the solid style. Doodle rendering is currently available in the JavaScript SDK; the native SDKs retain their solid renderer.
+The doodle renderer adds a gently irregular ink outline, hand-drawn cutouts, and a shadow offset by `(9, 11)`. The shadow is ink by default; pass `shadowColor` to draw it as a solid silhouette in that color instead, which also reads on dark backgrounds. `seededHoleyOptions()` includes a `shadowColor`, so seeded doodles get the same shadow color as the solid style. Its holes pulse subtly on hover. `shadowX`, `shadowY`, and `shadowSteps` apply only to the solid style. Doodle rendering is currently available in the JavaScript SDK; the native SDKs retain their solid renderer.
 
 ## Share links
 
@@ -201,7 +201,7 @@ The generated SVG scales to its container:
 | `doodle` | `false` | Hand-drawn outline and fixed ink shadow (JavaScript only) |
 | `idPrefix` | Unprefixed | Unique per inline SVG string; mounts manage this automatically |
 | `color` | Shape color | Six-digit hex face color |
-| `shadowColor` | Face color darkened in OKLCH | Six-digit hex extrusion color |
+| `shadowColor` | Face color darkened in OKLCH | Six-digit hex extrusion color; for doodles, the shadow color (ink when omitted) |
 | `holes` | Shape default | Hole count from 0 to 8 |
 | `seed` | `0` | Changes the hole layout |
 | `turn` | `0` | Quarter turns of the face: `0`, `90`, `180` or `270` |

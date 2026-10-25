@@ -21,6 +21,7 @@ export interface HoleyOptions {
   idPrefix?: string;
   shape?: HoleyShapeKey;
   color?: `#${string}`;
+  /** Extrusion color. For doodles, the offset shadow's color; ink when omitted. */
   shadowColor?: `#${string}`;
   holes?: number;
   seed?: number;

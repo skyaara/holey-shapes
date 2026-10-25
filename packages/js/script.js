@@ -459,6 +459,8 @@ export function createHoleySvg(options = {}) {
     duration: options.duration,
     seed,
     shadowColor,
+    // Doodles keep their ink shadow unless a shadow color is asked for.
+    doodleShadow: options.shadowColor === undefined ? undefined : shadowColor,
     shadowX,
     shadowY,
     shadowSteps

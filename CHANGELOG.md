@@ -7,6 +7,7 @@
 - Darken default extrusions in OKLCH on every platform: the face hue at 56% of its lightness and 70% of its chroma, replacing the per-channel RGB multiply.
 
 - Add `identityHash(id)` in JavaScript, `HoleyShapeConfiguration.identityHash(_:)` in Swift, and `HoleyShapeConfig.identityHash(id)` in Kotlin. They return the same 16-digit hex hash that seeded avatars start from.
+- Doodles honor `shadowColor`: the offset shadow becomes a solid silhouette in that color, so it reads on dark backgrounds. Without it the shadow stays ink. Seeded doodles use the seeded extrusion color.
 - Add JavaScript `doodle` rendering and `idPrefix` for safely embedding SVG strings. Doodles use the llmgames-online style: a wobbly ink outline that keeps corners crisp, closed irregular hole rings and a short ink shadow.
 - Isolate mounted SVG definitions, preserve sibling content, and make destroyed mounts inert.
 - Wrap JavaScript shuffle seeds at the supported limit.
