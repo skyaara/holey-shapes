@@ -6,6 +6,7 @@
 
 [![npm](https://img.shields.io/npm/v/holey-shapes?color=FF6A00)](https://www.npmjs.com/package/holey-shapes)
 [![npm downloads](https://img.shields.io/npm/dt/holey-shapes?color=4ADE80&label=downloads)](https://www.npmjs.com/package/holey-shapes)
+[![GitHub stars](https://img.shields.io/github/stars/skyaara/holey-shapes?style=flat&logo=github&color=FFD23F)](https://github.com/skyaara/holey-shapes/stargazers)
 [![CI](https://github.com/skyaara/holey-shapes/actions/workflows/ci.yml/badge.svg)](https://github.com/skyaara/holey-shapes/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-2878FF)](LICENSE)
 
