@@ -333,29 +333,6 @@ const deviceAvatars = [...document.querySelectorAll('[data-device]')];
 const drawIdentity = latestOnly((options) => Promise.all(options.map(renderIdentity)));
 const hashMarkup = (hash) => hash.match(/.{4}/g).map((group) => `<span>${group}</span>`).join('');
 
-// The same name with one letter changed, for the "one letter off" pair. Any
-// change gives a new holey; this picks the first that also looks clearly
-// different, so a chance shape or hue match doesn't hide the point.
-const hueOf = (hex) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
-  const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
-  if (!d) return 0;
-  const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return (h * 60 + 360) % 360;
-};
-function oneLetterOff(name) {
-  const characters = Array.from(name);
-  const last = characters.pop() ?? '';
-  const stem = characters.join('');
-  const original = seededHoleyOptions(name, false);
-  const candidates = [...'bcdefghijklmnopqrstuvwxyza0123456789'].filter((c) => c !== last).map((c) => stem + c);
-  return candidates.find((other) => {
-    const o = seededHoleyOptions(other, false);
-    const gap = Math.abs(((hueOf(o.color) - hueOf(original.color)) % 360 + 540) % 360 - 180);
-    return o.shape !== original.shape && gap > 60;
-  }) ?? candidates[0];
-}
-
 // The same face transform the package applies, so the steps show the turned outline.
 const faceTransform = (turn, mirror) =>
   [turn ? `rotate(${turn} 210 210)` : '', mirror ? 'translate(420 0) scale(-1 1)' : ''].filter(Boolean).join(' ');
@@ -367,30 +344,26 @@ function outlineSvg(shape, { color, transform }, inner = '') {
 function updateIdentity() {
   const name = normalizeHandle(idInput.value);
   updateShare(name);
-  const other = oneLetterOff(name);
   const hash = identityHash(name);
   const seeded = seededHoleyOptions(name, false);
   const shape = shapes.find((entry) => entry.key === seeded.shape);
   byId('id-hash').innerHTML = hashMarkup(hash);
   byId('id-meta').textContent = `${seeded.shape} · seed ${seeded.seed}`;
-  byId('cmp-a-name').textContent = name || '""';
-  byId('cmp-b-name').textContent = other;
   document.querySelectorAll('[data-name]').forEach((label) => { label.textContent = name; });
   byId('how-hash-name').textContent = JSON.stringify(name);
   byId('how-hash').innerHTML = hashMarkup(hash);
   const face = { color: seeded.color, transform: faceTransform(seeded.turn, seeded.mirror) };
   byId('how-outline').innerHTML = outlineSvg(shape, face);
   const base = solid(seeded);
+  // The doodle box restyles only this holey; native SDKs draw solid.
+  const doodle = byId('id-doodle').checked;
+  byId('id-avatar').parentElement.classList.toggle('paper', doodle);
   drawIdentity([
-    { ...base, idPrefix: 'id' },
-    { ...base, idPrefix: 'cmp-a' },
-    solid({ ...seededHoleyOptions(other, false), idPrefix: 'cmp-b' }),
+    doodle ? { ...seeded, doodle: true, idPrefix: 'id' } : { ...base, idPrefix: 'id' },
     { ...base, idPrefix: 'how-cut' },
     ...deviceAvatars.map((avatar) => ({ ...base, idPrefix: `device-${avatar.dataset.device}` })),
-  ], ([main, a, b, cut, ...devices]) => {
+  ], ([main, cut, ...devices]) => {
     paint(byId('id-avatar'), main.svg);
-    paint(byId('cmp-a'), a.svg);
-    paint(byId('cmp-b'), b.svg);
     paint(byId('how-cut'), cut.svg);
     devices.forEach((result, index) => paint(deviceAvatars[index], result.svg));
     // Step 3 traces the real packed holes from the finished SVG.
@@ -399,20 +372,11 @@ function updateIdentity() {
   });
 }
 idInput.addEventListener('input', updateIdentity);
+byId('id-doodle').addEventListener('change', updateIdentity);
 firstBench.then(updateIdentity);
 
 // Share links: every handle has a page at /@handle whose preview card on X
 // shows that holey, so a posted link carries the avatar with it.
-async function copyLink(button, handle) {
-  const label = button.querySelector('span') ?? button;
-  try {
-    await navigator.clipboard.writeText(shareUrl(handle));
-    label.textContent = 'Copied';
-  } catch {
-    label.textContent = 'Press ⌘C';
-  }
-  setTimeout(() => { label.textContent = 'Copy link'; }, 1400);
-}
 let sharedHandle = '';
 function updateShare(handle) {
   const ok = validHandle(handle);
@@ -420,10 +384,8 @@ function updateShare(handle) {
   byId('share-row').classList.toggle('invalid', !ok);
   byId('share-url').textContent = ok ? shareUrl(handle).replace(/^https:\/\//, '') : 'letters, numbers, _ . - (up to 32)';
   byId('share-url').href = ok ? `/@${handle}` : '#identity';
-  byId('copy-link').disabled = !ok;
   byId('share-x').href = ok ? shareOnX(handle, 'My holey, made from my handle.') : 'https://x.com/intent/post';
 }
-byId('copy-link').addEventListener('click', (event) => sharedHandle && copyLink(event.currentTarget, sharedHandle));
 byId('share-x').addEventListener('click', (event) => { if (!sharedHandle) event.preventDefault(); });
 
 // Old ?name= links now go to the handle's own page.

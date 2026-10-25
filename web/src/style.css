@@ -244,10 +244,6 @@ h1, h2, h3 { margin: 0; font-weight: 500; }
 .flow-arrow::after { content: ''; position: absolute; top: -4px; right: 0; width: 8px; height: 8px; border-top: 2px solid var(--line-strong); border-right: 2px solid var(--line-strong); transform: rotate(45deg); }
 .flow-result { align-items: center; text-align: center; }
 .flow-result .avatar { width: min(150px, 100%); }
-.compare { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 36px; }
-.compare figure { width: 76px; margin: 0; text-align: center; }
-.compare figcaption code { display: block; overflow: hidden; margin-top: 8px; color: var(--dim); font: 12px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
-.compare-sign { margin-bottom: 24px; color: var(--dim); font-size: 30px; }
 
 /* Devices */
 .devices { display: flex; align-items: flex-end; justify-content: center; gap: 26px; }
@@ -447,7 +443,6 @@ pre .f { color: var(--code-f); }
   .flow-arrow { justify-self: center; width: 2px; height: 22px; }
   .flow-arrow::after { top: auto; right: -3px; bottom: 0; transform: rotate(135deg); }
   .hash span { font-size: 15px; }
-  .compare { margin-top: 40px; }
   .devices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); justify-items: center; gap: 24px 12px; }
   .devices > .device:first-child { grid-column: 1 / -1; }
   .device-equals { display: none; }
@@ -553,3 +548,10 @@ pre .f { color: var(--code-f); }
   .profile-go-row { width: 100%; }
   .profile-go-row input { flex: 1; width: auto; }
 }
+
+/* Icon-only button, and the identity holey on paper when it is a doodle. */
+.button-icon { width: 46px; padding: 0; }
+.button-icon .logo { width: 20px; height: 20px; }
+.flow-result.paper .avatar { padding: 10%; border-radius: 12px; background: var(--paper); }
+.share-row .doodle-check { height: 46px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); font-size: 15px; }
+.share-row .doodle-box { width: 24px; height: 24px; }
