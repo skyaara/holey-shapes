@@ -1,15 +1,15 @@
 import { Resvg, initWasm } from '@resvg/resvg-wasm';
 import wasm from '@resvg/resvg-wasm/index_bg.wasm';
 import { createHoleySvg, identityHash, seededHoleyOptions } from '../../packages/js/index.js';
-import geistBold from './fonts/geist-bold.bin';
+import geistMedium from './fonts/geist-medium.bin';
 import geistMono from './fonts/geist-mono-semibold.bin';
 
 // Bump when the card design changes so cached PNGs are replaced.
-export const CARD_VERSION = 2;
+export const CARD_VERSION = 3;
 const WIDTH = 1200;
 const HEIGHT = 630;
 const CHIPS = ['#FFD000', '#00C9F2', '#FF4FA3', '#9BED00'];
-const fonts = [new Uint8Array(geistBold), new Uint8Array(geistMono)];
+const fonts = [new Uint8Array(geistMedium), new Uint8Array(geistMono)];
 let ready;
 
 // The link preview X shows for /@handle: the holey, the handle and its hash,
@@ -25,16 +25,16 @@ export function cardSvg(handle) {
   const size = Math.min(104, Math.floor(560 / (name.length * 0.56)));
   const chips = hash.match(/.{4}/g).map((group, index) => {
     const x = 600 + index * 136;
-    return `<rect x="${x}" y="318" width="122" height="60" rx="14" fill="${CHIPS[index]}"/><text x="${x + 61}" y="359" text-anchor="middle" font-family="Geist Mono" font-size="30" fill="#12121C">${group}</text>`;
+    return `<rect x="${x}" y="318" width="122" height="60" rx="14" fill="${CHIPS[index]}"/><text x="${x + 61}" y="359" text-anchor="middle" font-family="Geist Mono" font-size="30" fill="#0B0B0B">${group}</text>`;
   }).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-<rect width="${WIDTH}" height="${HEIGHT}" fill="#12121C"/>
+<rect width="${WIDTH}" height="${HEIGHT}" fill="#0B0B0B"/>
 ${holey}
-<text x="600" y="270" font-family="Geist" font-weight="700" font-size="${size}" letter-spacing="-2" fill="#F5F2EA">${name}</text>
+<text x="600" y="270" font-family="Geist" font-weight="500" font-size="${size}" letter-spacing="-2" fill="#F5F2EA">${name}</text>
 ${chips}
-<text x="600" y="430" font-family="Geist Mono" font-size="24" fill="#9592A3">${seeded.shape} · seed ${seeded.seed}</text>
-<text x="600" y="548" font-family="Geist" font-weight="700" font-size="30" fill="#F5F2EA">holey-shapes</text>
-<text x="822" y="548" font-family="Geist Mono" font-size="22" fill="#9592A3">type a name, get a holey</text>
+<text x="600" y="430" font-family="Geist Mono" font-size="24" fill="#8F8F8F">${seeded.shape} · seed ${seeded.seed}</text>
+<text x="600" y="548" font-family="Geist" font-weight="500" font-size="30" fill="#F5F2EA">holey-shapes</text>
+<text x="822" y="548" font-family="Geist Mono" font-size="22" fill="#8F8F8F">type a name, get a holey</text>
 </svg>`;
 }
 

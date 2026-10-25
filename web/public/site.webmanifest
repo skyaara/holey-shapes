@@ -4,8 +4,8 @@
   "description": "Deterministic avatars from any ID.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F4F0",
-  "theme_color": "#F5F4F0",
+  "background_color": "#F4EFE6",
+  "theme_color": "#F4EFE6",
   "icons": [
     {
       "src": "/logo.svg",

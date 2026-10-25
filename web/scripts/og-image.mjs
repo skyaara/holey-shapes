@@ -7,7 +7,7 @@ import { createHoleySvg, seededHoleyOptions } from '../../packages/js/index.js';
 
 const root = new URL('../', import.meta.url);
 await initWasm(await readFile(new URL('node_modules/@resvg/resvg-wasm/index_bg.wasm', root)));
-const fonts = await Promise.all(['server/fonts/geist-bold.bin', 'server/fonts/geist-mono-semibold.bin'].map((f) => readFile(new URL(f, root))));
+const fonts = await Promise.all(['server/fonts/geist-medium.bin', 'server/fonts/geist-mono-semibold.bin'].map((f) => readFile(new URL(f, root))));
 
 const NAMES = ['ada', 'grace', 'linus', 'radia', 'main-agent', 'planner', 'bugbot', 'hedy', 'deploy-bot'];
 const holeys = NAMES.map((name, k) => {
@@ -17,12 +17,12 @@ const holeys = NAMES.map((name, k) => {
 }).join('');
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-<rect width="1200" height="630" fill="#F4F1EA"/>
-<text x="80" y="250" font-family="Geist" font-weight="700" font-size="76" letter-spacing="-2" fill="#2B2A28">Avatars</text>
-<text x="80" y="335" font-family="Geist" font-weight="700" font-size="76" letter-spacing="-2" fill="#2B2A28">with holes.</text>
-<text x="82" y="400" font-family="Geist" font-weight="700" font-size="30" fill="#8E897F">Type a name. Get a holey.</text>
-<text x="82" y="540" font-family="Geist Mono" font-size="24" fill="#2B2A28">npm i holey-shapes</text>
-<text x="82" y="575" font-family="Geist Mono" font-size="20" fill="#8E897F">holey-shapes.aakashreddy.com</text>
+<rect width="1200" height="630" fill="#F4EFE6"/>
+<text x="80" y="250" font-family="Geist" font-weight="500" font-size="76" letter-spacing="-2" fill="#161513">Avatars</text>
+<text x="80" y="335" font-family="Geist" font-weight="500" font-size="76" letter-spacing="-2" fill="#161513">with holes.</text>
+<text x="82" y="400" font-family="Geist" font-weight="500" font-size="30" fill="#77716A">Type a name. Get a holey.</text>
+<text x="82" y="540" font-family="Geist Mono" font-size="24" fill="#161513">npm i holey-shapes</text>
+<text x="82" y="575" font-family="Geist Mono" font-size="20" fill="#77716A">holey-shapes.aakashreddy.com</text>
 ${holeys}
 </svg>`;
 

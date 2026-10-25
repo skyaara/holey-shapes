@@ -333,13 +333,27 @@ const deviceAvatars = [...document.querySelectorAll('[data-device]')];
 const drawIdentity = latestOnly((options) => Promise.all(options.map(renderIdentity)));
 const hashMarkup = (hash) => hash.match(/.{4}/g).map((group) => `<span>${group}</span>`).join('');
 
-// The same name with its last character nudged, for the "one letter off" pair.
+// The same name with one letter changed, for the "one letter off" pair. Any
+// change gives a new holey; this picks the first that also looks clearly
+// different, so a chance shape or hue match doesn't hide the point.
+const hueOf = (hex) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
+  if (!d) return 0;
+  const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+};
 function oneLetterOff(name) {
   const characters = Array.from(name);
   const last = characters.pop() ?? '';
-  const next = /[a-yA-Y0-8]/.test(last) ? String.fromCharCode(last.charCodeAt(0) + 1)
-    : last === 'z' ? 'a' : last === 'Z' ? 'A' : last === '9' ? '0' : `${last}a`;
-  return characters.join('') + next;
+  const stem = characters.join('');
+  const original = seededHoleyOptions(name, false);
+  const candidates = [...'bcdefghijklmnopqrstuvwxyza0123456789'].filter((c) => c !== last).map((c) => stem + c);
+  return candidates.find((other) => {
+    const o = seededHoleyOptions(other, false);
+    const gap = Math.abs(((hueOf(o.color) - hueOf(original.color)) % 360 + 540) % 360 - 180);
+    return o.shape !== original.shape && gap > 60;
+  }) ?? candidates[0];
 }
 
 // The same face transform the package applies, so the steps show the turned outline.
