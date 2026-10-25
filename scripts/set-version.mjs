@@ -1,7 +1,9 @@
 // Usage: node scripts/set-version.mjs 2.1.0
 // Sets the release version everywhere it is written down: the npm package,
-// the website, the Gradle fallback and the install snippets in the docs.
+// the Gradle fallback, the install snippets in the docs and, when present,
+// the website checkout in web/ (it is not part of this repository).
 // Swift Package Manager and JitPack take their version from the git tag.
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const next = process.argv[2];
@@ -32,6 +34,7 @@ const edits = {
 };
 for (const [file, replacements] of Object.entries(edits)) {
   const url = new URL(file, root);
+  if (file.startsWith('web/') && !existsSync(url)) continue;
   const before = await readFile(url, 'utf8');
   const after = replacements.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), before);
   if (after === before && current !== next) throw new Error(`No version found to update in ${file}`);

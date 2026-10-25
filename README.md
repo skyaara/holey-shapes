@@ -241,7 +241,7 @@ The hover animation respects `prefers-reduced-motion`.
 
 ## Local checks
 
-Run `npm test` in `packages/js` for the Node API and packing checks. Run `npm ci` and `npm run build` in `web` for the website. With `npm run dev` running from `web`, open `/tests/browser.html` for DOM mounting and lifecycle regression checks. The browser harness is excluded from production builds and the npm package.
+Run `npm test` in `packages/js` for the Node API, packing and seeding checks, and `npm pack --dry-run` to see exactly what the package would publish.
 
 ## Repository layout
 
@@ -250,10 +250,9 @@ Run `npm test` in `packages/js` for the Node API and packing checks. Run `npm ci
 | `packages/js/` | Published JavaScript package, types, and Node tests |
 | `packages/swift/` | Swift sources and verification package |
 | `packages/android/` | Android and standalone Kotlin/JVM packages with Gradle wrapper |
-| `web/` | Website, share-link Pages Functions, public assets, and browser tests |
-| `scripts/` | Cross-platform native sample verification |
+| `scripts/` | Shared seeding vectors, versioning, and native sample verification |
 
-The root `Package.swift` keeps the existing Swift Package Manager Git URL working and points to `packages/swift/`. The root `jitpack.yml` builds `packages/android/`. Run `npm run dev` from `web` to work on the website. Native verification images in `artifacts/` are generated locally and are not tracked.
+The root `Package.swift` keeps the existing Swift Package Manager Git URL working and points to `packages/swift/`. The root `jitpack.yml` builds `packages/android/`. Native verification images in `artifacts/` are generated locally and are not tracked.
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and the package boundaries, and the [code of conduct](CODE_OF_CONDUCT.md). Releases are described in [RELEASING.md](RELEASING.md). The project is licensed under [MIT](LICENSE).
 

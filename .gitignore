@@ -9,6 +9,6 @@ local.properties
 npm-debug.log*
 .kotlin/
 artifacts/
-web/src/generated/
+web/
 .wrangler/
 .claude/

@@ -7,9 +7,13 @@ on:
   push:
     tags: ['v*.*.*']
 
+permissions: {}
+
 jobs:
   checks:
     uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
 
   publish:
     needs: checks

@@ -1,5 +1,0 @@
-# Cloudflare Pages project for the website. `npm run deploy` builds and
-# uploads dist/ together with the share-link functions in functions/.
-name = "holey-shapes"
-pages_build_output_dir = "dist"
-compatibility_date = "2026-08-15"

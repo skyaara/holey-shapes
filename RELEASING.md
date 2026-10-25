@@ -1,6 +1,6 @@
 # Releasing
 
-One tag releases every package. npm is published by CI, Swift Package Manager and JitPack build straight from the tag, and the website deploys on every push to `main`.
+One tag releases every package. npm is published by CI, and Swift Package Manager and JitPack build straight from the tag.
 
 ## Release steps
 
@@ -31,13 +31,4 @@ The [Release workflow](.github/workflows/release.yml) then reruns CI and checks 
 ## One-time setup
 
 - **npm trusted publishing.** On npmjs.com, open the `holey-shapes` package settings and add a trusted publisher: GitHub Actions, repository `skyaara/holey-shapes`, workflow `release.yml`. No npm token is stored in the repository.
-- **Cloudflare Pages.** Add the repository secrets `CLOUDFLARE_API_TOKEN` (a token with the *Cloudflare Pages: Edit* permission) and `CLOUDFLARE_ACCOUNT_ID`. The [Deploy workflow](.github/workflows/deploy.yml) uploads `web/dist` and `web/functions` to the `holey-shapes` Pages project.
-
-## Website
-
-The site is a static Vite build plus two Pages Functions for share links:
-
-- `/@handle` serves the home page with Open Graph and X card tags for that handle.
-- `/og/@handle.png` renders the 1200×630 preview card with resvg and caches it at the edge.
-
-Run `npm run pages:dev` in `web/` to try both locally in the Cloudflare runtime, or `npm run deploy` to deploy by hand with Wrangler. When the card design changes, bump `CARD_VERSION` in `web/server/card.js`.
+- **Tag protection.** Release tags `v*.*.*` are protected by a repository ruleset: they cannot be moved or deleted once pushed.
