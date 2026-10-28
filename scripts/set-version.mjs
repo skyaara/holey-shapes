@@ -1,6 +1,6 @@
 // Usage: node scripts/set-version.mjs 2.1.0
 // Sets the release version everywhere it is written down: the npm package,
-// the Gradle fallback, the install snippets in the docs and, when present,
+// the Rust crate, the Gradle fallback, the install snippets in the docs and, when present,
 // the website checkout in web/ (it is not part of this repository).
 // Swift Package Manager and JitPack take their version from the git tag.
 import { existsSync } from 'node:fs';
@@ -17,11 +17,14 @@ const version = String.raw`\d+\.\d+\.\d+`;
 const edits = {
   'packages/js/package.json': [[/("version": ")\d+\.\d+\.\d+"/, `$1${next}"`]],
   'web/package.json': [[/("version": ")\d+\.\d+\.\d+"/, `$1${next}"`]],
+  'packages/rust/Cargo.toml': [[new RegExp(`^(version = ")${version}"`, 'm'), `$1${next}"`]],
   'packages/android/build.gradle.kts': [[new RegExp(`(\\.orElse\\(")${version}("\\))`), `$1${next}$2`]],
   'README.md': [
     [new RegExp(`(from: ")${version}"`, 'g'), `$1${next}"`],
     [new RegExp(`(holey-shapes(?:-core)?:v?)${version}`, 'g'), (_, prefix) => `${prefix}${next}`],
+    [new RegExp(`(holey-shapes = ")${version}"`, 'g'), `$1${next}"`],
   ],
+  'packages/rust/README.md': [[new RegExp(`(holey-shapes = ")${version}"`, 'g'), `$1${next}"`]],
   'web/docs/index.html': [
     [new RegExp(`(from: ")${version}"`, 'g'), `$1${next}"`],
     [new RegExp(`(holey-shapes:v)${version}`, 'g'), `$1${next}`],

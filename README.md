@@ -21,7 +21,7 @@
 holey-shapes turns a name, user ID or email into an avatar. Each one is a chunky 3D shape with holes punched in it. The holes close and reopen when you hover.
 
 - **Same name, same holey.** It works on any device and in any language, with nothing stored.
-- **Web, iPhone and Android.** All three draw exactly the same holey.
+- **Web, iPhone, Android and Rust.** All four draw exactly the same holey.
 - **No dependencies.** It's one small package and the output is a plain SVG.
 - **Lots of variety.** It mixes 14 shapes, 3,600 colors, hole layouts, turns and flips.
 
@@ -72,9 +72,25 @@ HoleyShapeView(
 
 </details>
 
+<details>
+<summary><b>Rust</b></summary>
+
+```toml
+[dependencies]
+holey-shapes = "2.1.0"
+```
+
+```rust
+use holey_shapes::{create_holey_svg, seeded_options};
+
+let svg = create_holey_svg(&seeded_options("ada"));
+```
+
+</details>
+
 ## Two styles
 
-Holeys are solid by default. Pass `doodle: true` for a hand-drawn look (web only for now).
+Holeys are solid by default. Pass `doodle: true` for a hand-drawn look (web and Rust for now).
 
 <p align="center"><img src=".github/media/styles.gif" width="600" alt="The same holey drawn solid and as a hand-drawn doodle"></p>
 

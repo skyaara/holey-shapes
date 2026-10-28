@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add a Rust crate, `holey-shapes`, with no dependencies. Seeding, colors, layouts and the solid and doodle SVG documents match JavaScript byte for byte, checked in CI against the shared seeding vectors and fixtures generated from the JavaScript package. One thread builds about 1,700 seeded avatars a second. The release workflow publishes it to crates.io.
+
 ## 2.1.0
 
 - Seed far more distinct holeys from an identity. The hash now picks the shape, hole count, quarter turn, mirroring, an OKLCH hue and the layout seed from separate bits, so different names rarely share a holey. Swift and Kotlin match JavaScript exactly, checked against shared vectors in CI.

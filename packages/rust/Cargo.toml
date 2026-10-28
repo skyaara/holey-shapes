@@ -1,0 +1,39 @@
+[package]
+name = "holey-shapes"
+version = "2.1.0"
+authors = ["Aakash Reddy"]
+edition = "2021"
+rust-version = "1.79"
+description = "Avatars with holes: a name becomes a colorful perforated shape, drawn as the same SVG as the JavaScript, Swift and Kotlin packages"
+license = "MIT"
+repository = "https://github.com/skyaara/holey-shapes"
+homepage = "https://holey-shapes.aakashreddy.com"
+documentation = "https://docs.rs/holey-shapes"
+readme = "README.md"
+keywords = ["avatar", "identicon", "svg", "generative"]
+categories = ["graphics", "multimedia::images"]
+# The tests read fixtures from the rest of the repository, so only the
+# library itself is published.
+include = ["src/**/*.rs", "README.md", "LICENSE"]
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+dbg_macro = "deny"
+todo = "deny"
+unimplemented = "deny"
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+
+# Packing makes millions of point-in-shape queries; one codegen unit and
+# link-time optimization let them inline across modules. Applies to builds
+# in this package (tests, benchmarks); dependents use their own profiles.
+[profile.release]
+codegen-units = 1
+lto = true
+
+[profile.bench]
+codegen-units = 1
+lto = true

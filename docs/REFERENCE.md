@@ -79,6 +79,21 @@ HoleyShapeView(
 
 The Android SDK requires API 26 or newer and a consuming project compiled with API 35 or newer. It renders through the native Android canvas and caches geometry and packed layouts. It packs new layouts off the main thread and draws each frame as a single even-odd path. Mouse hover or a touch press closes and reopens individual holes with the same timing as the web package. Android's animation scale applies automatically.
 
+### Rust
+
+```toml
+[dependencies]
+holey-shapes = "2.1.0"
+```
+
+```rust
+use holey_shapes::{create_holey_svg, seeded_options};
+
+let svg = create_holey_svg(&seeded_options("ada"));
+```
+
+The crate in [`packages/rust/`](../packages/rust/) has no dependencies and no `unsafe` code, and supports Rust 1.79 and newer. It returns the same SVG string as `createHoleySvg()`, byte for byte, for the solid and doodle styles. Its options are the JavaScript options in snake case (`shadow_color`, `duration_ms`, `id_prefix`), with `shape` a `Shape` and colors a `Color`. `layout(shape, count, seed)` returns the packed holes alone. The crate does not cache; keep the layouts or documents you draw repeatedly.
+
 ## Generate layouts in Swift and JVM processes
 
 Swift packing uses Foundation and plain geometry. It needs no SwiftUI view or CoreGraphics context. The package conditionally includes its SwiftUI renderer on supported Apple platforms.
@@ -156,7 +171,7 @@ const svg = createHoleySvg({
 });
 ```
 
-The doodle renderer adds a gently irregular ink outline, hand-drawn cutouts, and a shadow offset by `(9, 11)`. The shadow is ink by default; pass `shadowColor` to draw it as a solid silhouette in that color instead, which also reads on dark backgrounds. `seededHoleyOptions()` includes a `shadowColor`, so seeded doodles get the same shadow color as the solid style. Its holes pulse subtly on hover. `shadowX`, `shadowY`, and `shadowSteps` apply only to the solid style. Doodle rendering is currently available in the JavaScript SDK; the native SDKs retain their solid renderer.
+The doodle renderer adds a gently irregular ink outline, hand-drawn cutouts, and a shadow offset by `(9, 11)`. The shadow is ink by default; pass `shadowColor` to draw it as a solid silhouette in that color instead, which also reads on dark backgrounds. `seededHoleyOptions()` includes a `shadowColor`, so seeded doodles get the same shadow color as the solid style. Its holes pulse subtly on hover. `shadowX`, `shadowY`, and `shadowSteps` apply only to the solid style. Doodle rendering is currently available in the JavaScript and Rust packages; the Swift and Android SDKs retain their solid renderer.
 
 ## Share links
 
@@ -236,6 +251,8 @@ The hover animation respects `prefers-reduced-motion`.
 
 Run `npm test` in `packages/js` for the Node API, packing and seeding checks, and `npm pack --dry-run` to see exactly what the package would publish.
 
+Run `cargo test --release` in `packages/rust` to check the Rust crate against the shared seeding vectors and the JavaScript layouts and documents in `packages/rust/tests/fixtures`. If JavaScript output changes, run `node scripts/rust-fixtures.mjs` and commit the updated fixtures. `cargo run --release --example bench` reports how many avatars one thread builds a second.
+
 ## Repository layout
 
 | Path | Purpose |
@@ -243,7 +260,8 @@ Run `npm test` in `packages/js` for the Node API, packing and seeding checks, an
 | `packages/js/` | Published JavaScript package, types, and Node tests |
 | `packages/swift/` | Swift sources and verification package |
 | `packages/android/` | Android and standalone Kotlin/JVM packages with Gradle wrapper |
-| `scripts/` | Shared seeding vectors, versioning, and native sample verification |
+| `packages/rust/` | Rust crate, its parity tests and benchmark |
+| `scripts/` | Shared seeding vectors, Rust fixtures, versioning, and native sample verification |
 
 The root `Package.swift` keeps the existing Swift Package Manager Git URL working and points to `packages/swift/`. The root `jitpack.yml` builds `packages/android/`. Native verification images in `artifacts/` are generated locally and are not tracked.
 
