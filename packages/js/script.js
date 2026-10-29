@@ -186,65 +186,109 @@ function maximizeHoleAreas(shape, holes) {
   if (!holes.length) return holes;
   const { path } = packingCandidates(shape);
   const gap = 12;
+  // Each profile is flattened into typed arrays: the search below runs these
+  // loops hundreds of thousands of times, and plain loops over arrays avoid a
+  // closure and an object per step. The arithmetic is unchanged, so layouts
+  // stay identical to the Swift and Kotlin packages.
+  const rim = gap + 1;
   const profiles = holes.map(hole => {
     const a = Math.sqrt(hole.rx / hole.ry);
     const b = 1 / a;
     const angle = hole.rotate * Math.PI / 180;
     const c = Math.cos(angle), s = Math.sin(angle);
-    return {
-      a, b,
-      support: packingDirections.map(n => Math.hypot(a * (n.x * c + n.y * s), b * (-n.x * s + n.y * c))),
-      edge: perimeterDirections.map(n => {
-        const nx = n.x / a, ny = n.y / b;
-        const length = Math.hypot(nx, ny);
-        return { x: a * n.x * c - b * n.y * s, y: a * n.x * s + b * n.y * c,
-          nx: (nx * c - ny * s) / length, ny: (nx * s + ny * c) / length };
-      })
-    };
+    const support = new Float64Array(packingDirections.length);
+    packingDirections.forEach((n, k) => {
+      support[k] = Math.hypot(a * (n.x * c + n.y * s), b * (-n.x * s + n.y * c));
+    });
+    const edgeX = new Float64Array(perimeterDirections.length);
+    const edgeY = new Float64Array(perimeterDirections.length);
+    const rimX = new Float64Array(perimeterDirections.length);
+    const rimY = new Float64Array(perimeterDirections.length);
+    perimeterDirections.forEach((n, k) => {
+      const nx = n.x / a, ny = n.y / b;
+      const length = Math.hypot(nx, ny);
+      edgeX[k] = a * n.x * c - b * n.y * s;
+      edgeY[k] = a * n.x * s + b * n.y * c;
+      rimX[k] = rim * ((nx * c - ny * s) / length);
+      rimY[k] = rim * ((nx * s + ny * c) / length);
+    });
+    // `miss` is the rim sample that failed last time; testing it first ends most
+    // failing checks after one lookup. Which samples are tested never changes the answer.
+    return { a, b, support, edgeX, edgeY, rimX, rimY, miss: 0, limits: new Map() };
   });
   const points = holes.map(h => ({ x: h.cx, y: h.cy }));
-  function boundaryLimit(point, profile) {
-    if (!path.contains(point.x, point.y)) return 0;
-    let low = 0, high = 180;
-    for (let pass = 0; pass < 11; pass++) {
-      const radius = (low + high) / 2;
-      // An extra rim unit covers the space between perimeter samples.
-      const fits = profile.edge.every(e => path.contains(
-        point.x + radius * e.x + (gap + 1) * e.nx, point.y + radius * e.y + (gap + 1) * e.ny));
-      if (fits) low = radius; else high = radius;
+  // Whether the ellipse of this radius, plus the gap and an extra rim unit to
+  // cover the space between perimeter samples, sits inside the shape.
+  function rimInside(x, y, profile, radius) {
+    const { edgeX, edgeY, rimX, rimY } = profile;
+    const first = profile.miss;
+    if (!path.contains(x + radius * edgeX[first] + rimX[first], y + radius * edgeY[first] + rimY[first])) return false;
+    for (let k = 0; k < edgeX.length; k++) {
+      if (k === first) continue;
+      if (!path.contains(x + radius * edgeX[k] + rimX[k], y + radius * edgeY[k] + rimY[k])) {
+        profile.miss = k;
+        return false;
+      }
     }
+    return true;
+  }
+  // The search revisits the same positions across steps and passes, so each
+  // hole remembers the boundary limit it found at every position it tried.
+  function boundaryLimit(point, profile) {
+    const key = `${point.x},${point.y}`;
+    const known = profile.limits.get(key);
+    if (known !== undefined) return known;
+    let low = 0;
+    if (path.contains(point.x, point.y)) {
+      let high = 180;
+      for (let pass = 0; pass < 11; pass++) {
+        const radius = (low + high) / 2;
+        if (rimInside(point.x, point.y, profile, radius)) low = radius; else high = radius;
+      }
+    }
+    profile.limits.set(key, low);
     return low;
   }
   function fitsAt(point, profile, radius) {
-    return radius < 180 && path.contains(point.x, point.y) && profile.edge.every(e => path.contains(
-      point.x + radius * e.x + (gap + 1) * e.nx, point.y + radius * e.y + (gap + 1) * e.ny));
+    return radius < 180 && path.contains(point.x, point.y) && rimInside(point.x, point.y, profile, radius);
   }
   const boundaries = points.map((p, i) => boundaryLimit(p, profiles[i]));
-  function capacity(point, index, boundary) {
+  const directionX = Float64Array.from(packingDirections, n => n.x);
+  const directionY = Float64Array.from(packingDirections, n => n.y);
+  // The largest radius this hole can grow to before it meets a neighbour (or the
+  // boundary limit). A pair stops being measured once its separation can no
+  // longer lower the limit, and the whole check stops once the limit is at or
+  // under `floor`, where the caller rejects the move whatever the exact value.
+  function capacity(point, index, boundary, floor = -Infinity) {
     let limit = boundary;
-    points.forEach((other, j) => {
-      if (j === index) return;
+    const own = profiles[index].support;
+    for (let j = 0; j < points.length; j++) {
+      if (j === index) continue;
+      const theirs = profiles[j].support;
+      const dx = point.x - points[j].x, dy = point.y - points[j].y;
       let separation = 0;
-      packingDirections.forEach((n, k) => {
-        separation = Math.max(separation, (Math.abs((point.x - other.x) * n.x + (point.y - other.y) * n.y) - gap)
-          / (profiles[index].support[k] + profiles[j].support[k]));
-      });
+      for (let k = 0; k < directionX.length && separation < limit; k++) {
+        separation = Math.max(separation, (Math.abs(dx * directionX[k] + dy * directionY[k]) - gap) / (own[k] + theirs[k]));
+      }
       limit = Math.min(limit, separation);
-    });
+      if (limit <= floor) return limit;
+    }
     return limit;
   }
   // Coordinate search improves each constrained hole, then refines its position.
+  const moves = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
   for (const step of [12, 6, 3, 1.5]) {
     for (let pass = 0; pass < 3; pass++) {
       let moved = false;
-      points.forEach((point, i) => {
+      for (let i = 0; i < points.length; i++) {
+        const point = points[i];
         let best = point, bestBoundary = boundaries[i];
         let bestLimit = capacity(point, i, bestBoundary);
-        for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]) {
+        for (const [dx, dy] of moves) {
           const candidate = { x: point.x + dx * step, y: point.y + dy * step };
           // A move wins only if both limits beat the threshold, so reject on
           // the cheap separation test and a single rim test before the search.
-          const separation = capacity(candidate, i, Infinity);
+          const separation = capacity(candidate, i, Infinity, bestLimit + 0.02);
           if (separation <= bestLimit + 0.02 || !fitsAt(candidate, profiles[i], bestLimit + 0.02)) continue;
           const boundary = boundaryLimit(candidate, profiles[i]);
           const limit = Math.min(separation, boundary);
@@ -254,7 +298,7 @@ function maximizeHoleAreas(shape, holes) {
         }
         if (best !== point) moved = true;
         points[i] = best; boundaries[i] = bestBoundary;
-      });
+      }
       if (!moved) break;
     }
   }
@@ -283,23 +327,31 @@ function initialHoleLayout(shape, count, seed) {
         Math.hypot(point.x - 210, point.y - 210) < Math.hypot(best.x - 210, best.y - 210) ? point : best)
     : starterPool[Math.floor(seededNoise(seed, count, seed) * starterPool.length)];
   let selected = [first];
-  const remaining = candidates.filter((point) => point !== first);
+  // Each remaining candidate keeps its distance to the nearest pick and its
+  // seeded variation, so a pick only measures against the newest hole.
+  const remaining = candidates.filter((point) => point !== first).map((point) => ({
+    point,
+    nearest: Math.hypot(point.x - first.x, point.y - first.y),
+    variation: seed === 0 ? 1 : 0.92 + seededNoise(point.x, point.y, seed) * 0.16
+  }));
 
   while (selected.length < count && remaining.length) {
     let bestIndex = 0;
     let bestScore = -1;
-    remaining.forEach((candidate, index) => {
-      const nearest = Math.min(...selected.map((picked) =>
-        Math.hypot(candidate.x - picked.x, candidate.y - picked.y)));
-      const packingRadius = Math.min(candidate.clearance - 12, nearest / 2 - 5);
-      const variation = seed === 0 ? 1 : 0.92 + seededNoise(candidate.x, candidate.y, seed) * 0.16;
+    for (let index = 0; index < remaining.length; index++) {
+      const { point, nearest, variation } = remaining[index];
+      const packingRadius = Math.min(point.clearance - 12, nearest / 2 - 5);
       const score = packingRadius * variation;
       if (score > bestScore) {
         bestScore = score;
         bestIndex = index;
       }
-    });
-    selected.push(remaining.splice(bestIndex, 1)[0]);
+    }
+    const picked = remaining.splice(bestIndex, 1)[0].point;
+    selected.push(picked);
+    for (const entry of remaining) {
+      entry.nearest = Math.min(entry.nearest, Math.hypot(entry.point.x - picked.x, entry.point.y - picked.y));
+    }
   }
 
   for (let iteration = 0; iteration < 8; iteration += 1) {
