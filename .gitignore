@@ -12,3 +12,5 @@ artifacts/
 web/
 .wrangler/
 .claude/
+target/
+packages/rust/Cargo.lock
