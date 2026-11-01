@@ -3,7 +3,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.library") version "9.4.1"
+    id("com.android.library") version "9.5.0"
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.21"
     id("org.jetbrains.kotlin.jvm") version "2.4.21" apply false
     id("maven-publish")
